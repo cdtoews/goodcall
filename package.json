@@ -1,13 +1,13 @@
 {
-  "name": "15tut",
+  "name": "Goodcall",
   "version": "1.0.0",
-  "description": "MongoDB tutorial",
+  "description": "Gooding Inc. Call Logging",
   "main": "server.js",
   "scripts": {
     "start": "node server",
     "dev": "nodemon server"
   },
-  "author": "Dave Gray",
+  "author": "Chris Toews, code stolen from: Dave Gray",
   "license": "ISC",
   "engines": {
     "node": "14.x"
