@@ -2,6 +2,9 @@
   "name": "Goodcall",
   "version": "1.0.0",
   "description": "Gooding Inc. Call Logging",
+  "engines": {
+    "node": "20.18.0"
+  },
   "main": "server.js",
   "scripts": {
     "start": "node server",
