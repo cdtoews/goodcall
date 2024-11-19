@@ -1,3 +1,4 @@
+require('dotenv').config();
 const User = require('../model/User');
 
 const handleLogout = async (req, res) => {
@@ -9,17 +10,20 @@ const handleLogout = async (req, res) => {
 
     // Is refreshToken in db?
     const foundUser = await User.findOne({ refreshToken }).exec();
+    const cookieSecurity = process.env.COOKIE_SECURE || true;
     if (!foundUser) {
-        res.clearCookie('jwt', { httpOnly: true, sameSite: 'None'});
+        res.clearCookie('jwt', { httpOnly: true, secure: cookieSecurity, sameSite: 'None'});
         return res.sendStatus(204);
     }
 
     // Delete refreshToken in db
-    foundUser.refreshToken = '';
+    foundUser.refreshToken = foundUser.refreshToken.filter(rt  => rt !== refreshToken);
     const result = await foundUser.save();
     console.log(result);
 
-    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None'});
+
+
+    res.clearCookie('jwt', { httpOnly: true, secure: cookieSecurity, sameSite: 'None'});
     res.sendStatus(204);
 }
 
