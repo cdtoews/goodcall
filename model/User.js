@@ -6,6 +6,9 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    duo_id: {
+        type: String
+    },
     roles: {
         User: {
             type: Number,
@@ -17,6 +20,10 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    active: {
+        type: Boolean,
+        default: true
     },
     refreshToken: [String]
 });
