@@ -9,8 +9,12 @@ const callSchema = new Schema({
     contact_id: {
         type: Schema.contact_id,
         required: true
-    }
-    duo_id: {
+    },
+    call_date: {
+        type: Date,
+        required: true
+    },
+    notes: {
         type: String
     },
     call_type: {

@@ -7,7 +7,8 @@ const companySchema = new Schema({
         required: true
     },
     active: {
-        type: Boolean
+        type: Boolean,
+        default: true
     }
 });
 
