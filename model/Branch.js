@@ -7,7 +7,8 @@ const branchSchema = new Schema({
         required: true
     },
     company_id: {
-        type: Schema.company_id,
+        type: Schema.Types.ObjectId,
+        ref: 'Company',
         required: true
     },
     active: {
@@ -16,4 +17,4 @@ const branchSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Call', branchSchema);
+module.exports = mongoose.model('Branch', branchSchema);

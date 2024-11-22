@@ -7,7 +7,13 @@ const callSchema = new Schema({
         required: true
     },
     contact_id: {
-        type: Schema.contact_id,
+        type: Schema.Types.ObjectId,
+        ref: 'Contact',
+        required: true
+    },
+    user_id: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     call_date: {

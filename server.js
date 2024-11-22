@@ -49,6 +49,9 @@ app.use(verifyJWT);
 app.use('/employees', require('./routes/api/employees'));
 app.use('/users', require('./routes/api/users'));
 app.use('/companies', require('./routes/api/companies'));
+app.use('/branches', require('./routes/api/branches'));
+app.use('/contacts', require('./routes/api/contacts'));
+
 
 app.all('*', (req, res) => {
     console.log('########################     inside app all      ##############################');

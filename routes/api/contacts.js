@@ -1,29 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const employeesController = require('../../controllers/contactController');
+const contactController = require('../../controllers/contactController');
 const ROLES_LIST = require('../../config/roles_list');
 const verifyRoles = require('../../middleware/verifyRoles');
 
 router.route('/')
-    //.get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.getAllEmployees)
-    .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), contactController.createNewContact)
+    .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.createNewContact)
     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.updateContact);
 
-//   .delete(verifyRoles(ROLES_LIST.Admin), contactController.deleteEmployee);
 
 router.route('/:id')
-    .get(contactController.getEmployee);
+    .get(contactController.getContact);
 
 //TODO   TOTEST
 router.route('/bybranch/:id')
-.put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.getContactByBranch);
+    .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.getContactByBranch);
 
 //TOTEST
-router.route('/activate/:id')
+router.route('/activate')
     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.activateContact);
 
 //TOTEST
-router.route('/deactivate/:id')
+router.route('/deactivate')
     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.deactivateContact);
 
 module.exports = router;

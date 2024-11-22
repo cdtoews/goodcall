@@ -1,7 +1,7 @@
 const Company = require('../model/Company');
 
 const getAllCompanies = async (req, res) => {
-    const companies = await Company.find();
+    const companies = await Company.find({ active: true });
     if (!companies) return res.status(204).json({ 'message': 'No companies found.' });
     res.json(companies);
 }

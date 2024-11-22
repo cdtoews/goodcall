@@ -18,7 +18,8 @@ const contactSchema = new Schema({
         type: String
     },
     branch_id: {
-        type: Schema.branch_id,
+        type: Schema.Types.ObjectId,
+        ref: 'Branch',
         required: true
     },
     active: {
@@ -27,4 +28,4 @@ const contactSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Call', contactSchema);
+module.exports = mongoose.model('Contact', contactSchema);

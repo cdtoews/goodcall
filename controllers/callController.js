@@ -1,6 +1,5 @@
 const Contact = require('../model/Contact');
-const boolVerifyRoles = require('../middleware/boolVerifyRoles');
-const ROLES_LIST = require('../config/roles_list');
+
 
 const createNewContact = async (req, res) => {
     if (!req?.body?.firstname || !req?.body?.branch_id) {
@@ -72,13 +71,8 @@ const activateContact = async (req, res) => {
 
 //TOTEST
 const getContactByBranch = async (req, res) => {
-    
-    console.log('is admin or editor?');
-    console.log(boolVerifyRoles(req.roles, ROLES_LIST.Admin, ROLES_LIST.Editor));
-    
-    
     if (!req?.params?.id) return res.status(400).json({ 'message': 'Branch ID required.' });
-    console.log(req.roles);
+
 
     const contacts = await Contact.find({branch_id: req.params.id, active: true});
     if (!contacts) return res.status(204).json({ 'message': 'No contacts found' });
