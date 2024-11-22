@@ -87,5 +87,6 @@ module.exports = {
     updateContact,
     deactivateContact,
     activateContact,
+    getContactByBranch,
     getContact
 }

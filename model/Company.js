@@ -11,5 +11,5 @@ const companySchema = new Schema({
         default: true
     }
 });
-
-module.exports = mongoose.model('Call', companySchema);
+ 
+module.exports = mongoose.model('Company', companySchema);

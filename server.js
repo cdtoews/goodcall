@@ -48,8 +48,10 @@ app.use('/logout', require('./routes/logout'));
 app.use(verifyJWT);
 app.use('/employees', require('./routes/api/employees'));
 app.use('/users', require('./routes/api/users'));
+app.use('/companies', require('./routes/api/companies'));
 
 app.all('*', (req, res) => {
+    console.log('########################     inside app all      ##############################');
     res.status(404);
     if (req.accepts('html')) {
         res.sendFile(path.join(__dirname, 'views', '404.html'));

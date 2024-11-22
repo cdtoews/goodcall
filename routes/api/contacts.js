@@ -16,7 +16,7 @@ router.route('/:id')
 
 //TODO   TOTEST
 router.route('/bybranch/:id')
-.put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.fsfsdfsdfsdfsfs);
+.put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.getContactByBranch);
 
 //TOTEST
 router.route('/activate/:id')
