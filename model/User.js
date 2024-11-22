@@ -25,6 +25,10 @@ const userSchema = new Schema({
         type: Boolean,
         default: true
     },
+    receive_emails: {
+        type: Boolean,
+        default: false
+    },
     refreshToken: [String]
 });
 

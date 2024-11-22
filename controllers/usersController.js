@@ -25,8 +25,27 @@ const getUser = async (req, res) => {
     res.json(user);
 }
 
+//TOTEST:
+const updateUser = async (req, res) => {
+    if (!req?.body?.id) {
+        return res.status(400).json({ 'message': 'ID parameter is required.' });
+    }
+
+    const user = await user.findOne({ _id: req.body.id }).exec();
+    if (!user) {
+        return res.status(204).json({ "message": `No user matches ID ${req.body.id}.` });
+    }
+    if (req.body?.user) user.firstname = req.body.firstname;
+    if (req.body?.user) user.lastname = req.body.lastname;
+    if (req.body?.user) user.active = req.body.active;
+    if (req.body?.user) user.roles = req.body.roles;
+    const result = await employee.save();
+    res.json(result);
+}
+
 module.exports = {
     getAllUsers,
     deleteUser,
-    getUser
+    getUser,
+    updateUser
 }
