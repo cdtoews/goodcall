@@ -1,12 +1,40 @@
+require('dotenv').config();
 const Call = require('../model/Call');
 const User = require('../model/User');
 const Contact = require('../model/Contact');
 const { th } = require('date-fns/locale');
 
-function getUserObject(req) {
+async function getUserObject(req) {
     //we have req.user, which is the username
     const thisUser = User.findOne({ username: req.user }).lean().exec();
     return thisUser;
+}
+
+async function parseQuery(req) {
+
+    var result = {};
+    //check if gt is there
+    if (req.query.gt) {
+        var gtlt = {};
+        gtlt.$gt = new Date(req.query.gt);
+        if (req.query.lt) gtlt.$lt = new Date(req.query.lt);
+        result.call_date = gtlt;
+        return result;
+        //   call_date: { $gt: ltDate, $lt: new Date('2024-11-27') }
+    } else {
+        const daysBack = req.query.daysback ? req.query.daysback : process.env.CALL_SEARCH_DEFAULT_DAYS_BACK;
+        let ltDate = new Date();
+        ltDate.setDate(ltDate.getDate() - daysBack);
+        result.call_date = { $gt: ltDate }
+        return result;
+    }
+}
+
+async function parseQueryOnlyMIne(req) {
+    var result = await parseQuery(req);
+    const thisUser = await getUserObject(req);
+    result.user_id = thisUser._id;
+    return result;
 }
 
 //TOTEST
@@ -74,11 +102,17 @@ const deleteCall = async (req, res) => {
 
 const getMyCalls = async (req, res) => {
     try {
+        const searchParams =  await parseQueryOnlyMIne(req);
 
-        const thisUser = await getUserObject(req);
+        // var searchParams = await parseQuery(req);
+        // const thisUser = await getUserObject(req);
+        // searchParams.user_id = thisUser._id;
 
-        const calls = await Call.find({ user_id: thisUser._id });
+
+        //console.log(searchParams);
+        const calls = await Call.find(searchParams).exec();
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        //console.log(calls);
         res.json(calls);
     } catch (err) {
         console.error(err);
