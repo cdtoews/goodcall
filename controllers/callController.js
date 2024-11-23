@@ -1,100 +1,164 @@
+const Call = require('../model/Call');
+const User = require('../model/User');
 const Contact = require('../model/Contact');
+const { th } = require('date-fns/locale');
 
+function getUserObject(req) {
+    //we have req.user, which is the username
+    const thisUser = User.findOne({ username: req.user }).lean().exec();
+    return thisUser;
+}
 
-const createNewContact = async (req, res) => {
-    if (!req?.body?.firstname || !req?.body?.branch_id) {
-        return res.status(400).json({ 'message': 'First name and branch_id are required' });
+//TOTEST
+const createNewCall = async (req, res) => {
+
+    //we have req.user, which is the username
+    const thisUser = await getUserObject(req, res);
+
+    if (!req?.body?.contact_id ||
+        !req?.body?.call_type) {
+        return res.status(400).json({ 'message': 'Required fields: contact_id,  call_type ' });
     }
 
     try {
-        const result = await Contact.create({
-            firstname: req.body.firstname,
-            lastname: req.body.lastname,
-            email: req.body.email,
-            phone: req.body.phone,
-            branch_id: req.body.branch_id,
-            notes: req.body.notes         
-        });
+        const newCall = new Call();
+        newCall.user_id = thisUser._id;
+        newCall.contact_id = req.body.contact_id;
+        newCall.notes = req.body.notes;
+        newCall.call_type = req.body.call_type;
+        newCall.call_flag = req.body.call_flag;
+        if (req.body?.call_date) newCall.call_date = req.body.call_date;
 
-        res.status(201).json(result);
+        const result = newCall.save();
+
+        res.status(201).json(newCall);
     } catch (err) {
         console.error(err);
-        return res.status(400).json({ 'message': 'Something wonky happened creating contact' });
+        return res.status(400).json({ 'message': 'Something wonky happened creating call' });
     }
 }
 
+
 //TOTEST:
-const updateContact = async (req, res) => {
+const updateCall = async (req, res) => {
     if (!req?.body?.id) {
         return res.status(400).json({ 'message': 'ID parameter is required.' });
     }
 
-    const contact = await Contact.findOne({ _id: req.body.id }).exec();
-    if (!contact) {
-        return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
+    const call = await Call.findOne({ _id: req.body.id }).exec();
+    if (!call) {
+        return res.status(204).json({ "message": `No call matches ID ${req.body.id}.` });
     }
-    if (req.body?.firstname) contact.firstname = req.body.firstname;
-    if (req.body?.lastname) contact.lastname = req.body.lastname;
-    if (req.body?.email) contact.email = req.body.email;
-    if (req.body?.phone) contact.phone = req.body.phone;
-    if (req.body?.notes) contact.notes = req.body.notes;
-    if (req.body?.active) contact.active = req.body.active;
-    const result = await contact.save();
+    if (req.body?.contact_id) call.contact_id = req.body.contact_id;
+    if (req.body?.user_id) call.user_id = req.body.user_id;
+    if (req.body?.call_date) call.call_date = req.body.call_date;
+    if (req.body?.notes) call.notes = req.body.notes;
+    if (req.body?.call_type) call.call_type = req.body.call_type;
+    if (req.body?.call_flag) call.call_flag = req.body.call_flag;
+    const result = await call.save();
     res.json(result);
 }
 
-//TOTEST:
-const deactivateContact = async (req, res) => {
-    if (!req?.body?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-    const contact = await Contact.findOne({ _id: req.body.id }).exec();
-    if (!contact) {
-        return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
+const deleteCall = async (req, res) => {
+    if (!req?.body?.id) return res.status(400).json({ 'message': 'call ID required.' });
+    const call = await Call.findOne({ _id: req.body.id }).exec();
+    if (!call) {
+        return res.status(204).json({ "message": `No call matches ID ${req.body.id}.` });
     }
-    //const result = await employee.deleteOne({ _id: req.body.id }); //{ _id: req.body.id } //in original deleteOne was empty
-    contact.active = false;
-    const result = await contact.save();
+    const result = await call.deleteOne({ _id: req.body.id });
     res.json(result);
 }
 
-//TOTEST:
-const activateContact = async (req, res) => {
-    if (!req?.body?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-    const contact = await Contact.findOne({ _id: req.body.id }).exec();
-    if (!contact) {
-        return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
+//----------------- MINE --------------------
+
+
+const getMyCalls = async (req, res) => {
+    try {
+
+        const thisUser = await getUserObject(req);
+
+        const calls = await Call.find({ user_id: thisUser._id });
+        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        res.json(calls);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'aomething went sideways, in getmycalls' });
     }
-    //const result = await employee.deleteOne({ _id: req.body.id }); //{ _id: req.body.id } //in original deleteOne was empty
-    contact.active = true;
-    const result = await contact.save();
-    res.json(result);
+
 }
 
 //TOTEST
-const getContactByBranch = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'Branch ID required.' });
+const getCallByBranch = async (req, res) => {
+    if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+    //need to get user_id of user
+    try {
+        //we have req.user, which is the username
+        const thisUser = await getUserObject(req, res);
 
 
-    const contacts = await Contact.find({branch_id: req.params.id, active: true});
-    if (!contacts) return res.status(204).json({ 'message': 'No contacts found' });
-    res.json(contacts);
+        const contacts = await Contact.find({ branch_id: req.params.id, active: true });
+        const calls = [];
+        //iterate contacts sand get calls for each
+        contacts.forEach(function (thisContact) {
+            var thisCalls = Call.find({ contact_id: req.params.id, user_id: thisUser._id }).lean().exec();
+            if (thisCalls) calls.concat(thisCalls);
+
+        })
+
+
+
+        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        res.json(calls);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'aomething went sideways, in getCallByBranch' });
+    }
+
+
+}
+
+
+//TOTEST
+const getCallByContact = async (req, res) => {
+
+    try {
+        if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+        //need to get user_id of user
+        //we have req.user, which is the username
+        const thisUser = await getUserObject(req, res);
+
+        const calls = await Call.find({ contact_id: req.params.id, user_id: thisUser._id });
+        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        res.json(calls);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'aomething went sideways, in getCallByContact' });
+    }
+
 }
 
 //TOTEST:
-const getContact = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-
-    const contact = await Contact.findOne({ _id: req.params.id }).exec();
-    if (!contact) {
-        return res.status(204).json({ "message": `No contact matches ID ${req.params.id}.` });
+const getCall = async (req, res) => {
+    if (!req?.params?.id) return res.status(400).json({ 'message': 'call ID required.' });
+    try {
+        const call = await Call.findOne({ _id: req.params.id }).exec();
+        if (!call) {
+            return res.status(204).json({ "message": `No call matches ID ${req.params.id}.` });
+        }
+        res.json(call);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'aomething went sideways, in getcall' });
     }
-    res.json(contact);
+
 }
 
 module.exports = {
-    createNewContact,
-    updateContact,
-    deactivateContact,
-    activateContact,
-    getContactByBranch,
-    getContact
+    createNewCall,
+    updateCall,
+    deleteCall,
+    getCallByContact,
+    getCall,
+    getMyCalls,
+    getCallByBranch
 }

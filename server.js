@@ -51,6 +51,7 @@ app.use('/users', require('./routes/api/users'));
 app.use('/companies', require('./routes/api/companies'));
 app.use('/branches', require('./routes/api/branches'));
 app.use('/contacts', require('./routes/api/contacts'));
+app.use('/calls', require('./routes/api/calls'));
 
 
 app.all('*', (req, res) => {

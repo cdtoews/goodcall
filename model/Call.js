@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const callSchema = new Schema({
-    user_id: {
-        type: Schema.user_id,
-        required: true
-    },
     contact_id: {
         type: Schema.Types.ObjectId,
         ref: 'Contact',
@@ -18,7 +14,8 @@ const callSchema = new Schema({
     },
     call_date: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now        
     },
     notes: {
         type: String
