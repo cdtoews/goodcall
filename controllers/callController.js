@@ -2,11 +2,14 @@ require('dotenv').config();
 const Call = require('../model/Call');
 const User = require('../model/User');
 const Contact = require('../model/Contact');
+const ROLES_LIST = require('../config/roles_list');
+const boolVerifyRoles = require('../middleware/boolVerifyRoles');
 const { th } = require('date-fns/locale');
 
 async function getUserObject(req) {
     //we have req.user, which is the username
-    const thisUser = User.findOne({ username: req.user }).lean().exec();
+    const thisUser = await User.findOne({ username: req.user }).lean().exec();
+    //return Promise.resolve(thisUser);
     return thisUser;
 }
 
@@ -20,7 +23,7 @@ async function parseQuery(req) {
         if (req.query.lt) gtlt.$lt = new Date(req.query.lt);
         result.call_date = gtlt;
         return result;
-        //   call_date: { $gt: ltDate, $lt: new Date('2024-11-27') }
+        //   call_date: { $gt: gtDate, $lt: new Date('2024-11-27') }
     } else {
         const daysBack = req.query.daysback ? req.query.daysback : process.env.CALL_SEARCH_DEFAULT_DAYS_BACK;
         let ltDate = new Date();
@@ -97,14 +100,14 @@ const deleteCall = async (req, res) => {
     res.json(result);
 }
 
-//----------------- MINE --------------------
+
 
 
 const getMyCalls = async (req, res) => {
     try {
         const searchParams = await parseQueryOnlyMIne(req);
 
-            const calls = await Call.find(searchParams).exec();
+        const calls = await Call.find(searchParams).exec();
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         //console.log(calls);
         res.json(calls);
@@ -115,6 +118,20 @@ const getMyCalls = async (req, res) => {
 
 }
 
+const getAllCalls = async (req, res) => {
+    try {
+        const searchParams = await parseQuery(req);
+
+        const calls = await Call.find(searchParams).exec();
+        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        //console.log(calls);
+        res.json(calls);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'aomething went sideways, in getAllCalls' });
+    }
+
+}
 
 const getCallByBranch = async (req, res) => {
     if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
@@ -132,7 +149,7 @@ const getCallByBranch = async (req, res) => {
             const thisParams = {};
             thisParams.contact_id = contact._doc._id;
 
-            var thisCalls = await Call.find({ ...searchParams,...thisParams }).lean().exec();
+            var thisCalls = await Call.find({ ...searchParams, ...thisParams }).lean().exec();
             if (thisCalls) {
                 //calls.concat(thisCalls);
                 Array.prototype.push.apply(calls, thisCalls);
@@ -149,17 +166,62 @@ const getCallByBranch = async (req, res) => {
 
 }
 
+const getAllCallByBranch = async (req, res) => {
+    if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+    //need to get user_id of user
+    try {
 
-//TOTEST
+        const searchParams = await parseQuery(req);
+        searchParams.branch_id = req.params.id;
+        //searchParams.active=true;
+
+        const contacts = await Contact.find({ branch_id: req.params.id, active: true });
+        const calls = [];
+        //iterate contacts sand get calls for each
+        for (const contact of contacts) {
+            const thisParams = {};
+            thisParams.contact_id = contact._doc._id;
+
+            var thisCalls = await Call.find({ ...searchParams, ...thisParams }).lean().exec();
+            if (thisCalls) {
+                //calls.concat(thisCalls);
+                Array.prototype.push.apply(calls, thisCalls);
+            }
+        }
+
+        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        res.json(calls);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'aomething went sideways, in getCallByBranch' });
+    }
+
+
+}
+
 const getCallByContact = async (req, res) => {
 
     try {
         if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-        //need to get user_id of user
-        //we have req.user, which is the username
-        const thisUser = await getUserObject(req, res);
+        var searchParams = await parseQueryOnlyMIne(req);
+        searchParams.contact_id = req.params.id;
+        const calls = await Call.find(searchParams);
+        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        res.json(calls);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'aomething went sideways, in getCallByContact' });
+    }
 
-        const calls = await Call.find({ contact_id: req.params.id, user_id: thisUser._id });
+}
+
+const getAllCallByContact = async (req, res) => {
+
+    try {
+        if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+        var searchParams = await parseQuery(req);
+        searchParams.contact_id = req.params.id;
+        const calls = await Call.find(searchParams);
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         res.json(calls);
     } catch (err) {
@@ -177,12 +239,24 @@ const getCall = async (req, res) => {
         if (!call) {
             return res.status(204).json({ "message": `No call matches ID ${req.params.id}.` });
         }
+
+        if (!boolVerifyRoles(req.roles, ROLES_LIST.Admin)) {
+            //we only need to check this for mere mortals
+            
+            //if only a user, need to verify they aren't looking at anyone else's calls
+            const thisUser = await User.findOne({ username: req.user }).lean().exec();
+            const myUserId = thisUser._id;
+            callUserId = call._doc.user_id;
+            if(JSON.stringify(myUserId ) !== JSON.stringify(callUserId) ){
+                console.log('attempted to retreive another person\'s call');
+                return res.status(401).json({ "message": 'You are not authorized to see that entry' });
+            }
+        }
         res.json(call);
     } catch (err) {
         console.error(err);
         return res.status(404).json({ "message": 'aomething went sideways, in getcall' });
     }
-
 }
 
 module.exports = {
@@ -192,5 +266,8 @@ module.exports = {
     getCallByContact,
     getCall,
     getMyCalls,
-    getCallByBranch
+    getCallByBranch,
+    getAllCalls,
+    getAllCallByContact,
+    getAllCallByBranch
 }
