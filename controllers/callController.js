@@ -102,15 +102,9 @@ const deleteCall = async (req, res) => {
 
 const getMyCalls = async (req, res) => {
     try {
-        const searchParams =  await parseQueryOnlyMIne(req);
+        const searchParams = await parseQueryOnlyMIne(req);
 
-        // var searchParams = await parseQuery(req);
-        // const thisUser = await getUserObject(req);
-        // searchParams.user_id = thisUser._id;
-
-
-        //console.log(searchParams);
-        const calls = await Call.find(searchParams).exec();
+            const calls = await Call.find(searchParams).exec();
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         //console.log(calls);
         res.json(calls);
@@ -121,25 +115,29 @@ const getMyCalls = async (req, res) => {
 
 }
 
-//TOTEST
+
 const getCallByBranch = async (req, res) => {
     if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
     //need to get user_id of user
     try {
-        //we have req.user, which is the username
-        const thisUser = await getUserObject(req, res);
 
+        const searchParams = await parseQueryOnlyMIne(req);
+        searchParams.branch_id = req.params.id;
+        //searchParams.active=true;
 
         const contacts = await Contact.find({ branch_id: req.params.id, active: true });
         const calls = [];
         //iterate contacts sand get calls for each
-        contacts.forEach(function (thisContact) {
-            var thisCalls = Call.find({ contact_id: req.params.id, user_id: thisUser._id }).lean().exec();
-            if (thisCalls) calls.concat(thisCalls);
+        for (const contact of contacts) {
+            const thisParams = {};
+            thisParams.contact_id = contact._doc._id;
 
-        })
-
-
+            var thisCalls = await Call.find({ ...searchParams,...thisParams }).lean().exec();
+            if (thisCalls) {
+                //calls.concat(thisCalls);
+                Array.prototype.push.apply(calls, thisCalls);
+            }
+        }
 
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         res.json(calls);
