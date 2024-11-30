@@ -14,7 +14,7 @@ const createNewContact = async (req, res) => {
             email: req.body.email,
             phone: req.body.phone,
             branch_id: req.body.branch_id,
-            notes: req.body.notes         
+            notes: req.body.notes
         });
 
         res.status(201).json(result);
@@ -26,6 +26,13 @@ const createNewContact = async (req, res) => {
 
 //TOTEST:
 const updateContact = async (req, res) => {
+    try {
+
+    } catch (err) {
+        console.log(err);
+    }
+
+
     if (!req?.body?.id) {
         return res.status(400).json({ 'message': 'ID parameter is required.' });
     }
@@ -46,54 +53,75 @@ const updateContact = async (req, res) => {
 
 //TOTEST:
 const deactivateContact = async (req, res) => {
-    if (!req?.body?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-    const contact = await Contact.findOne({ _id: req.body.id }).exec();
-    if (!contact) {
-        return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
+    try {
+        if (!req?.body?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+        const contact = await Contact.findOne({ _id: req.body.id }).exec();
+        if (!contact) {
+            return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
+        }
+        //const result = await employee.deleteOne({ _id: req.body.id }); //{ _id: req.body.id } //in original deleteOne was empty
+        contact.active = false;
+        const result = await contact.save();
+        res.json(result);
+    } catch (err) {
+        console.log(err);
     }
-    //const result = await employee.deleteOne({ _id: req.body.id }); //{ _id: req.body.id } //in original deleteOne was empty
-    contact.active = false;
-    const result = await contact.save();
-    res.json(result);
+
+
+
 }
 
 //TOTEST:
 const activateContact = async (req, res) => {
-    if (!req?.body?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-    const contact = await Contact.findOne({ _id: req.body.id }).exec();
-    if (!contact) {
-        return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
+    try {
+        if (!req?.body?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+        const contact = await Contact.findOne({ _id: req.body.id }).exec();
+        if (!contact) {
+            return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
+        }
+        //const result = await employee.deleteOne({ _id: req.body.id }); //{ _id: req.body.id } //in original deleteOne was empty
+        contact.active = true;
+        const result = await contact.save();
+        res.json(result);
+    } catch (err) {
+        console.log(err);
     }
-    //const result = await employee.deleteOne({ _id: req.body.id }); //{ _id: req.body.id } //in original deleteOne was empty
-    contact.active = true;
-    const result = await contact.save();
-    res.json(result);
+
+
 }
 
 //TOTEST
 const getContactByBranch = async (req, res) => {
-    
-    console.log('is admin or editor?');
-    console.log(boolVerifyRoles(req.roles, ROLES_LIST.Admin, ROLES_LIST.Editor));
-    
-    
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'Branch ID required.' });
-    console.log(req.roles);
+    try {
 
-    const contacts = await Contact.find({branch_id: req.params.id, active: true});
-    if (!contacts) return res.status(204).json({ 'message': 'No contacts found' });
-    res.json(contacts);
+        if (!req?.params?.id) return res.status(400).json({ 'message': 'Branch ID required.' });
+        // console.log(req.roles);
+
+        const contacts = await Contact.find({ branch_id: req.params.id, active: true }).sort({ firstname: 1 });
+        if (!contacts) return res.status(204).json({ 'message': 'No contacts found' });
+        res.json(contacts);
+    } catch (err) {
+        console.log(err);
+    }
+
+
+
 }
 
 //TOTEST:
 const getContact = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+    try {
+        if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
 
-    const contact = await Contact.findOne({ _id: req.params.id }).exec();
-    if (!contact) {
-        return res.status(204).json({ "message": `No contact matches ID ${req.params.id}.` });
+        const contact = await Contact.findOne({ _id: req.params.id }).exec();
+        if (!contact) {
+            return res.status(204).json({ "message": `No contact matches ID ${req.params.id}.` });
+        }
+        res.json(contact);
+    } catch (err) {
+        console.log(err);
     }
-    res.json(contact);
+
 }
 
 module.exports = {

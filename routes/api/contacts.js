@@ -9,12 +9,12 @@ router.route('/')
     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.updateContact);
 
 
-router.route('/:id')
-    .get(contactController.getContact);
-
 //TODO   TOTEST
 router.route('/bybranch/:id')
     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.getContactByBranch);
+
+router.route('/:id')
+    .get(contactController.getContact);
 
 //TOTEST
 router.route('/activate')
