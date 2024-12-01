@@ -3,6 +3,8 @@ const allowedOrigins = [
     'http://localhost:3500',
     'http://localhost:3000',
     'http://localhost',
+    'http://toelap4:3000',
+    'http://toelap4',
     'https://callreports-stg-81ce23a9d77e.herokuapp.com'
 ];
 
