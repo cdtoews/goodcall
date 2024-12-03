@@ -22,10 +22,7 @@ const logEvents = async (message, logName) => {
 
 const logger = (req, res, next) => {
     logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, 'reqLog.txt');
-
-    //var remoteip = req.ip;
     console.log(`method=${req.method} path=${req.path} remote_ip=${req.ip}`);
-    //console.log(req.);
     next();
 }
 

@@ -5,6 +5,7 @@ const Contact = require('../model/Contact');
 const ROLES_LIST = require('../config/roles_list');
 const boolVerifyRoles = require('../middleware/boolVerifyRoles');
 const { th } = require('date-fns/locale');
+const sendEmail = require('../middleware/sendEmail');
 
 async function getUserObject(req) {
     //we have req.user, which is the username
@@ -63,6 +64,7 @@ const createNewCall = async (req, res) => {
         const result = newCall.save();
 
         res.status(201).json(newCall);
+        sendEmail.sendCallEntryEmail();
     } catch (err) {
         console.error(err);
         return res.status(400).json({ 'message': 'Something wonky happened creating call' });

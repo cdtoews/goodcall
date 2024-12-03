@@ -37,7 +37,7 @@ const handleLogin = async (req, res) => {
                 : foundUser.refreshToken.filter(rt => rt !== cookies.jwt);
 
         const cookieSecurity = process.env.COOKIE_SECURE || true;
-        console.log(cookieSecurity);
+        //console.log(cookieSecurity);
         if (cookies?.jwt) res.clearCookie('jwt', { httpOnly: true, secure: cookieSecurity, sameSite: 'None'});
 
 
