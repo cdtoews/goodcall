@@ -64,7 +64,7 @@ const createNewCall = async (req, res) => {
         const result = newCall.save();
 
         res.status(201).json(newCall);
-        sendEmail.sendCallEntryEmail();
+        sendEmail.sendCallEntryEmail(req);
     } catch (err) {
         console.error(err);
         return res.status(400).json({ 'message': 'Something wonky happened creating call' });
