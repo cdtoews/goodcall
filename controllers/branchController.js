@@ -77,11 +77,22 @@ const getBranch = async (req, res) => {
     res.json(branch);
 }
 
+const getBranchObject = async (branchId) => {
+   
+    const branch = await Branch.findOne({ _id: branchId}).exec();
+    if (!branch) {
+        console.log("unable to get branch object for id: "  + branchId)
+        return null;
+    }
+    return branch;
+}
+
 module.exports = {
     getBranchesByCompany,
     createNewBranch,
     updateBranch,
     deactivateBranch,
     activateBranch,
-    getBranch
+    getBranch,
+    getBranchObject
 }

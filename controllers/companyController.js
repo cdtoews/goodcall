@@ -75,11 +75,21 @@ const getCompany = async (req, res) => {
     res.json(company);
 }
 
+const getCompanyName = async (companyId) => {
+    const company = await Company.findOne({ _id: companyId }).exec();
+    if (!company) {
+        console.log("unable to get company for id: " + companyId);
+        return null;
+    }
+    return company.label;
+}
+
 module.exports = {
     getAllCompanies,
     createNewCompany,
     updateCompany,
     deactivateCompany,
     activateCompany,
-    getCompany
+    getCompany,
+    getCompanyName
 }

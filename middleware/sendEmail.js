@@ -1,5 +1,22 @@
 const sgMail = require("@sendgrid/mail");
+const Contact = require('../model/Contact');
+const companyController = require('../controllers/companyController');
+const branchController = require('../controllers/branchController');
 
+function getContact(contact_id) {
+    try {
+
+        const contact = Contact.findOne({ _id: contact_id }).lean().exec();
+        if (!contact) {
+            console.log("no contact found for contact._id: " + contact_id);
+            return null;
+        }
+        return contact;
+    } catch (err) {
+        console.log(err);
+    }
+
+}
 
 const sendCallEntryEmail = async (req) => {
 
@@ -17,23 +34,34 @@ const sendCallEntryEmail = async (req) => {
 
     var msgSubject = "New Call Report Entered by " + req.user;
 
-    var msgNotes = "<br>" + req.body.notes.split('\n').join('<br>');
-    
+    var msgNotes = req.body.notes.split('\n').join('<br>');
 
-//TODO: get all the data for this:
+    var webAppURL = process.env.WEB_APP_URL;
+
+    var contact = await getContact(req.body.contact_id);
+
+    var contact_name = contact.firstname + " " + contact.lastname;
+    var branch = await branchController.getBranchObject(contact.branch_id);
+    var branchName = branch.label;
+
+    var companyName = await companyController.getCompanyName(branch.company_id);
+
+    //TODO: get all the data for this:
     const msg = {
         to: 'chris.admin@goodingd.com', // Change to your recipient
         from: 'chris.admin@goodingd.com', // Change to your verified sender
-        // subject: msgSubject,
-        // text: msgBody,
-        // html: '<strong>and weird to do anywhere, even with Node.js</strong>',
-            templateId: 'd-7be70042e8774b83acfe70fcd559fd23',
-            dynamicTemplateData: {
-                email_subject: msgSubject,
-                unique_name: req.user,
-                first_name: req.body.contact_id,
-                address_line_1: msgNotes
-            },
+        templateId: 'd-7be70042e8774b83acfe70fcd559fd23',
+        dynamicTemplateData: {
+            email_subject: msgSubject,
+            username: req.user,
+            customer_name: companyName,
+            branch_name: branchName,
+            contact_name: contact_name,
+            call_flag: req.body.call_flag,
+            call_type: req.body.call_type,
+            call_notes: msgNotes,
+            webapp_url: webAppURL
+        },
     };
 
 
