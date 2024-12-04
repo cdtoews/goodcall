@@ -2,6 +2,7 @@ const sgMail = require("@sendgrid/mail");
 const Contact = require('../model/Contact');
 const companyController = require('../controllers/companyController');
 const branchController = require('../controllers/branchController');
+const userController = require('../controllers/usersController');
 
 function getContact(contact_id) {
     try {
@@ -46,10 +47,15 @@ const sendCallEntryEmail = async (req) => {
 
     var companyName = await companyController.getCompanyName(branch.company_id);
 
-    //TODO: get all the data for this:
+    const users = await userController.getAllEmailUsers();
+    //console.log(users);
+    const emails = users.map(user => user.username)
+
+    const fromEmail = process.env.EMAIL_FROM;
+
     const msg = {
-        to: 'chris.admin@goodingd.com', // Change to your recipient
-        from: 'chris.admin@goodingd.com', // Change to your verified sender
+        to: emails, // Change to your recipient
+        from: fromEmail,
         templateId: 'd-7be70042e8774b83acfe70fcd559fd23',
         dynamicTemplateData: {
             email_subject: msgSubject,
@@ -62,6 +68,7 @@ const sendCallEntryEmail = async (req) => {
             call_notes: msgNotes,
             webapp_url: webAppURL
         },
+        hideWarnings: true
     };
 
 
