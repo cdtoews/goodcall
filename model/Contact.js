@@ -27,6 +27,16 @@ const contactSchema = new Schema({
         type: Boolean,
         default: true
     }
+}, {
+    toJSON: { virtuals: true } // <-- include virtuals in `JSON.stringify()`
+}
+
+);
+
+contactSchema.virtual('fullName').get(function () {
+    return this.firstname + ' ' + this.lastname;
 });
+
+
 
 module.exports = mongoose.model('Contact', contactSchema);
