@@ -6,6 +6,8 @@ const ROLES_LIST = require('../config/roles_list');
 const boolVerifyRoles = require('../middleware/boolVerifyRoles');
 const { th } = require('date-fns/locale');
 const sendEmail = require('../middleware/sendEmail');
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 
 async function getUserObject(req) {
     //we have req.user, which is the username
@@ -34,7 +36,7 @@ async function parseQuery(req) {
     }
 }
 
-async function parseQueryOnlyMIne(req) {
+async function parseQueryOnlyMine(req) {
     var result = await parseQuery(req);
     const thisUser = await getUserObject(req);
     result.user_id = thisUser._id;
@@ -107,16 +109,38 @@ const deleteCall = async (req, res) => {
 
 const getMyCalls = async (req, res) => {
     try {
-        const searchParams = await parseQueryOnlyMIne(req);
+        // console.log('inside gmc');
+        const searchParams = await parseQueryOnlyMine(req);
+        // console.log(searchParams);
 
-        const calls = await Call.find(searchParams).exec();
-        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
-        //console.log(calls);
-        res.json(calls);
+        const calls = await Call.find(searchParams)
+            .populate({
+                path: 'contact_id',
+                model: 'Contact',
+                populate: {
+                    path: 'branch_id',
+                    model: 'Branch',
+                    populate: {
+                        path: 'company_id',
+                        model: 'Company'
+                    }
+                }
+            }).exec();;
+
+
+        //  .populate([ 'contact_id', 'branch_id' ])
+
+           
+
+
+
+if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+//console.log(calls);
+res.json(calls);
     } catch (err) {
-        console.error(err);
-        return res.status(404).json({ "message": 'aomething went sideways, in getmycalls' });
-    }
+    console.error(err);
+    return res.status(404).json({ "message": 'aomething went sideways, in getmycalls' });
+}
 
 }
 
@@ -244,12 +268,12 @@ const getCall = async (req, res) => {
 
         if (!boolVerifyRoles(req.roles, ROLES_LIST.Admin)) {
             //we only need to check this for mere mortals
-            
+
             //if only a user, need to verify they aren't looking at anyone else's calls
             const thisUser = await User.findOne({ username: req.user }).lean().exec();
             const myUserId = thisUser._id;
             callUserId = call._doc.user_id;
-            if(JSON.stringify(myUserId ) !== JSON.stringify(callUserId) ){
+            if (JSON.stringify(myUserId) !== JSON.stringify(callUserId)) {
                 console.log('attempted to retreive another person\'s call');
                 return res.status(401).json({ "message": 'You are not authorized to see that entry' });
             }
