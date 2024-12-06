@@ -117,12 +117,15 @@ const getMyCalls = async (req, res) => {
             .populate({
                 path: 'contact_id',
                 model: 'Contact',
+                select: { '_id': 1,'firstname':1, 'lastname':1},
                 populate: {
                     path: 'branch_id',
                     model: 'Branch',
+                    select: { '_id': 1,'label':1},
                     populate: {
                         path: 'company_id',
-                        model: 'Company'
+                        model: 'Company',
+                        select: { '_id': 1,'label':1},
                     }
                 }
             }).exec();;
