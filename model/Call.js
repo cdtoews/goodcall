@@ -21,10 +21,12 @@ const callSchema = new Schema({
         type: String
     },
     call_type: {
-        type: String
+        type: String,
+        required: true
     },
     call_flag: {
-        type: String
+        type: String,
+        required: true
     }
 });
 

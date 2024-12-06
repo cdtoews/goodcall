@@ -114,7 +114,7 @@ const getMyCalls = async (req, res) => {
         // console.log(searchParams);
 
         const calls = await Call.find(searchParams)
-            .populate({
+            .populate([{
                 path: 'contact_id',
                 model: 'Contact',
                 select: { '_id': 1,'firstname':1, 'lastname':1},
@@ -128,7 +128,15 @@ const getMyCalls = async (req, res) => {
                         select: { '_id': 1,'label':1},
                     }
                 }
-            }).exec();;
+            },
+            {
+                path: 'user_id',
+                model: 'User',
+                select: 'username',
+            }
+        
+        ]
+        ).exec();;
 
 
         //  .populate([ 'contact_id', 'branch_id' ])
