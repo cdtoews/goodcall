@@ -21,6 +21,12 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    pw_reset_timeout: {
+        type: Date
+    },
+    temp_password: {
+        type: String
+    },
     active: {
         type: Boolean,
         default: true

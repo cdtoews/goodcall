@@ -24,14 +24,7 @@ const sendCallEntryEmail = async (req) => {
     // using Twilio SendGrid's v3 Node.js Library
     // https://github.com/sendgrid/sendgrid-nodejs
 
-    //const sgMail = require('@sendgrid/mail')
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-    // var msgBody =
-    //     "Contact:   " + req.body.contact_id + "\n" +
-    //     "Flag:      " + req.body.call_flag + "\n" +
-    //     "Call Type: " + req.body.call_type + "\n" +
-    //     "Notes:\n" + req.body.notes + "\n";
-
 
     var msgSubject = "New Call Report Entered by " + req.user;
 
@@ -86,6 +79,37 @@ const sendCallEntryEmail = async (req) => {
 
 }
 
+const sendPwResetEmail = (tempPw, username) => {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+    const fromEmail = process.env.EMAIL_FROM;
+    var webAppURL = process.env.WEB_APP_URL;
+    const pw_reset_link  = `${webAppURL}/pwreset/?user=${username}/pw=${tempPw}` ;
+    const msgSubject = "Password Reset Request";
+
+    const msg = {
+        to: username, 
+        from: fromEmail,
+        templateId: 'd-aadc5ca0791d4a4db6c24028369d5261',
+        dynamicTemplateData: {
+            email: msgSubject,
+            username: username,
+            pw_reset_link: pw_reset_link,
+            webapp_url: webAppURL
+        },
+        hideWarnings: true
+    };
+
+    sgMail
+    .send(msg)
+    .then(() => {
+        console.log('PW Reset Email sent')
+    })
+    .catch((error) => {
+        console.error(error)
+    })
+    //email , pw_reset_link 
+
+}
 
 const sendMonthlyEmail = (req, res, next) => {
     logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, 'reqLog.txt');
@@ -93,4 +117,4 @@ const sendMonthlyEmail = (req, res, next) => {
     next();
 }
 
-module.exports = { sendCallEntryEmail, sendMonthlyEmail };
+module.exports = { sendCallEntryEmail, sendMonthlyEmail, sendPwResetEmail };
