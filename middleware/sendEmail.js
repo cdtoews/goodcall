@@ -83,7 +83,7 @@ const sendPwResetEmail = (tempPw, username) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const fromEmail = process.env.EMAIL_FROM;
     var webAppURL = process.env.WEB_APP_URL;
-    const pw_reset_link  = `${webAppURL}/pwreset/?user=${username}/pw=${tempPw}` ;
+    const pw_reset_link  = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}` ;
     const msgSubject = "Password Reset Request";
 
     const msg = {

@@ -1,12 +1,13 @@
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
 const sendEmail = require('../middleware/sendEmail');
+const { now } = require('mongoose');
 
 function generatePass() {
     let pwLength = 40;
     let pass = '';
     let str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-        'abcdefghijklmnopqrstuvwxyz0123456789@#$';
+        'abcdefghijklmnopqrstuvwxyz0123456789';
 
     for (let i = 1; i <= pwLength; i++) {
         let char = Math.floor(Math.random()
@@ -57,18 +58,60 @@ const handlePwResetRequest = async (req, res) => {
 
 const handlePwResetLink = async (req, res) => {
     try {
-        if (!req?.params?.id){
+        console.log(req.body);
+        if (!req?.body?.username) {
             console.log('WEIRD pwResetLink came in with no ID');
-        }else{
-            console.log("hprl");
+            return res.status(400).json({ "message": 'no username' });
         }
+
+        //USER
+        const username = req.body.username;
+        const newPwd = req.body.pwd;
+        const tempPw = req.body.tempPw;
+        //console.log(req.body);
+        const user = await User.findOne({ username: username }).exec();
+        if (!user) {
+            console.log(`BAD password reset requested for ${req.body.user}`);
+            return res.status(400).json({ "message": 'huh?' });
+        }
+
+        //CHECK DATE
+        const resetDate = new Date(user.pw_reset_timeout);
+        if (!resetDate) {
+            console.log(`Expired password reset requested for ${req.body.user}`);
+            return res.status(409).json({ "message": 'Expired Reset Request' });
+        }
+
+        
+        const dateNow = Date.now();
+        //console.log(`resetDate: ${resetDate}, nowDate: ${dateNow.toString()}`);
+        if (dateNow > resetDate) {
+            //console.log("is after");
+            console.log(`OLD password reset requested for ${req.body.user}`);
+            return res.status(409).json({ "message": 'Old Reset Request' });
+        } 
+
+        //CHECK TEMP PW
+        const match = await bcrypt.compare(tempPw, user.temp_password);
+        if(!match){
+            console.log(`Password Request with bad tempPW for: ${req.body.user}`);
+            return res.status(400).json({ "message": 'huh?' });
+        }
+
+        //now we can set new PW
+        const hashedPwd = await bcrypt.hash(newPwd,10);
+        user.password = hashedPwd;
+        const result = await user.save();
+        return res.status(200).json({ "message": 'SUCCESS' });
+
+
+
 
 
 
     } catch (err) {
         console.error(err);
-    } finally {
-        return res.status(400).json({ "message": 'huh?' });
+        return res.status(400).json({ "message": 'finally huh?' });
     }
 
 

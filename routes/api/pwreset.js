@@ -4,6 +4,6 @@ const pwResetController = require('../../controllers/pwResetController')
 
 
 router.post('/', pwResetController.handlePwResetRequest)
-router.get('/:ID', pwResetController.handlePwResetLink)
+router.post('/link', pwResetController.handlePwResetLink)
 
 module.exports = router;
