@@ -46,6 +46,7 @@ async function parseQueryOnlyMine(req) {
 //TOTEST
 const createNewCall = async (req, res) => {
 
+    //console.log(req.body);
     //we have req.user, which is the username
     const thisUser = await getUserObject(req, res);
 
@@ -136,7 +137,7 @@ const getMyCalls = async (req, res) => {
             }
         
         ]
-        ).exec();;
+        ).exec();
 
 
         //  .populate([ 'contact_id', 'branch_id' ])
@@ -159,7 +160,34 @@ const getAllCalls = async (req, res) => {
     try {
         const searchParams = await parseQuery(req);
 
-        const calls = await Call.find(searchParams).exec();
+       
+
+        const calls = await Call.find(searchParams)
+            .populate([{
+                path: 'contact_id',
+                model: 'Contact',
+                select: { '_id': 1,'firstname':1, 'lastname':1},
+                populate: {
+                    path: 'branch_id',
+                    model: 'Branch',
+                    select: { '_id': 1,'label':1},
+                    populate: {
+                        path: 'company_id',
+                        model: 'Company',
+                        select: { '_id': 1,'label':1},
+                    }
+                }
+            },
+            {
+                path: 'user_id',
+                model: 'User',
+                select: 'username',
+            }
+        
+        ]
+        ).exec();
+
+
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         //console.log(calls);
         res.json(calls);

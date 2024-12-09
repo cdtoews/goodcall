@@ -51,12 +51,18 @@ callSchema.virtual("friendly_time").get(function () {
     return `${hours}:${minutes}`;
 })
 
-callSchema.virtual("employeeName").get(function () {
-    var str = this.user_id.username;
-    var nameParts = str.split("@");
-    var name = nameParts.length==2 ? nameParts[0] : "";
-    return name;
-})
+// callSchema.virtual("employeeName").get(function () {
+//     try{
+//         var str = this.user_id.username;
+//         var nameParts = str.split("@");
+//         var name = nameParts.length==2 ? nameParts[0] : "";
+//         return name;
+//     }catch(err){
+//         console.log(err);
+//         return "";
+//     }
+    
+// })
 
 
 module.exports = mongoose.model('Call', callSchema);
