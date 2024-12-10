@@ -32,7 +32,7 @@ const handlePwResetRequest = async (req, res) => {
                 const futureDate = new Date(now.getTime() + 60 * 60 * 1000);
                 const tempPw = generatePass();
                 const hashedPwd = await bcrypt.hash(tempPw, 10);
-                console.log(`tempPw: ${tempPw}`);
+                //console.log(`tempPw: ${tempPw}`);
                 user.temp_password = hashedPwd;
                 user.pw_reset_timeout = futureDate;
                 const result = await user.save();

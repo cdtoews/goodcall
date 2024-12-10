@@ -2,7 +2,35 @@ const sgMail = require("@sendgrid/mail");
 const Contact = require('../model/Contact');
 const companyController = require('../controllers/companyController');
 const branchController = require('../controllers/branchController');
-const userController = require('../controllers/usersController');
+const User = require('../model/User');
+
+function stripPWFromUsers(users) {
+    for (const thisUser of users) {
+        stripPWFromUser(thisUser);
+    }
+}
+
+function stripPWFromUser(thisUser) {
+
+    thisUser.password = "";
+    thisUser.refreshToken = [];
+    thisUser.pw_reset_timeout = "";
+    thisUser.temp_password = "";
+
+}
+
+const getAllEmailUsers = async (req, res) => {
+    try {
+        const users = await User.find({ receive_emails: true });
+        if (!users) return [];
+        stripPWFromUsers(users);
+        return users;
+    } catch (err) {
+        console.log(err);
+        return [];
+    }
+
+}
 
 function getContact(contact_id) {
     try {
@@ -40,7 +68,7 @@ const sendCallEntryEmail = async (req) => {
 
     var companyName = await companyController.getCompanyName(branch.company_id);
 
-    const users = await userController.getAllEmailUsers();
+    const users = await getAllEmailUsers();
     //console.log(users);
     const emails = users.map(user => user.username)
 
@@ -79,6 +107,10 @@ const sendCallEntryEmail = async (req) => {
 
 }
 
+const testFunc = () => {
+    console.log("inside testfunc");
+}
+
 const sendPwResetEmail = (tempPw, username, duration_text) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const fromEmail = process.env.EMAIL_FROM;
@@ -112,10 +144,54 @@ const sendPwResetEmail = (tempPw, username, duration_text) => {
 
 }
 
+const sendNewUserEmail = (tempPw, username, duration_text) => {
+    console.log("inside SNUE");
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+    const fromEmail = process.env.EMAIL_FROM;
+    var webAppURL = process.env.WEB_APP_URL;
+    const pw_reset_link  = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}` ;
+    const msgSubject = "Password Reset Request";
+
+    const msg = {
+        to: username, 
+        from: fromEmail,
+        templateId: 'd-aadc5ca07c24028369d5261',
+        dynamicTemplateData: {
+            email: msgSubject,
+            username: username,
+            pw_reset_link: pw_reset_link,
+            webapp_url: webAppURL,
+            duration: duration_text
+        },
+        hideWarnings: true
+    };
+
+    sgMail
+    .send(msg)
+    .then(() => {
+        console.log('PW Reset Email sent')
+    })
+    .catch((error) => {
+        console.error(error)
+    })
+    //email , pw_reset_link 
+
+}
+
+
+
 const sendMonthlyEmail = (req, res, next) => {
     logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, 'reqLog.txt');
     console.log(`method=${req.method} path=${req.path} remote_ip=${req.ip}`);
     next();
 }
 
-module.exports = { sendCallEntryEmail, sendMonthlyEmail, sendPwResetEmail };
+
+
+module.exports = { 
+    sendCallEntryEmail, 
+    sendMonthlyEmail, 
+    sendPwResetEmail, 
+    sendNewUserEmail, 
+    testFunc 
+};
