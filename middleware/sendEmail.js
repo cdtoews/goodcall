@@ -79,7 +79,7 @@ const sendCallEntryEmail = async (req) => {
 
 }
 
-const sendPwResetEmail = (tempPw, username) => {
+const sendPwResetEmail = (tempPw, username, duration_text) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const fromEmail = process.env.EMAIL_FROM;
     var webAppURL = process.env.WEB_APP_URL;
@@ -94,7 +94,8 @@ const sendPwResetEmail = (tempPw, username) => {
             email: msgSubject,
             username: username,
             pw_reset_link: pw_reset_link,
-            webapp_url: webAppURL
+            webapp_url: webAppURL,
+            duration: duration_text
         },
         hideWarnings: true
     };

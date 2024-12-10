@@ -39,7 +39,8 @@ const handlePwResetRequest = async (req, res) => {
                 //user.save;
                 //console.log(`password reset requested for ${req.body.user}`);
                 //console.log(user);
-                sendEmail.sendPwResetEmail(tempPw, req.body.user);
+                const duration_text = `${hoursLimit} hour(s)`;  //hoursLimit.toString() + " hours";
+                sendEmail.sendPwResetEmail(tempPw, req.body.user, duration_text);
                 return res.status(200).json({ "message": 'SUCCESS' });
             } else {
                 console.log(`BAD password reset requested for ${req.body.user}`);
