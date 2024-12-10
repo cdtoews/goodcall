@@ -37,9 +37,10 @@ const handlePwResetRequest = async (req, res) => {
                 user.pw_reset_timeout = futureDate;
                 const result = await user.save();
                 //user.save;
-                console.log(`password reset requested for ${req.body.user}`);
-                console.log(user);
+                //console.log(`password reset requested for ${req.body.user}`);
+                //console.log(user);
                 sendEmail.sendPwResetEmail(tempPw, req.body.user);
+                return res.status(200).json({ "message": 'SUCCESS' });
             } else {
                 console.log(`BAD password reset requested for ${req.body.user}`);
             }
@@ -48,10 +49,8 @@ const handlePwResetRequest = async (req, res) => {
         }
     } catch (err) {
         console.error(err);
-    } finally {
         return res.status(400).json({ "message": 'huh?' });
-    }
-
+    } 
 
 
 }
