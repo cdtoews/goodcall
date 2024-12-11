@@ -2,13 +2,13 @@ const Company = require('../model/Company');
 
 const getAllCompanies = async (req, res) => {
     //console.log("inside gac");
-    const companies = await Company.find({ active: true }).sort({label: 1});
+    const companies = await Company.find({ active: true }).sort({ label: 1 });
     if (!companies) return res.status(204).json({ 'message': 'No companies found.' });
     res.json(companies);
 }
 
 const createNewCompany = async (req, res) => {
-    if (!req?.body?.label ) {
+    if (!req?.body?.label) {
         return res.status(400).json({ 'message': 'label is required' });
     }
 
@@ -67,22 +67,30 @@ const activateCompany = async (req, res) => {
 
 //TOTEST
 const getCompany = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'Company ID required.' });
+    try {
+        if (!req?.params?.id) return res.status(400).json({ 'message': 'Company ID required.' });
 
-    const company = await Company.findOne({ _id: req.params.id }).exec();
-    if (!company) {
-        return res.status(204).json({ "message": `No company matches ID ${req.params.id}.` });
+        const company = await Company.findOne({ _id: req.params.id }).exec();
+        if (!company) {
+            return res.status(204).json({ "message": `No company matches ID ${req.params.id}.` });
+        }
+        res.json(company);
+    } catch (err) {
+        console.error(err);
     }
-    res.json(company);
 }
 
 const getCompanyName = async (companyId) => {
-    const company = await Company.findOne({ _id: companyId }).exec();
-    if (!company) {
-        console.log("unable to get company for id: " + companyId);
-        return null;
+    try {
+        const company = await Company.findOne({ _id: companyId }).exec();
+        if (!company) {
+            console.log("unable to get company for id: " + companyId);
+            return null;
+        }
+        return company.label;
+    } catch (err) {
+        console.error(err);
     }
-    return company.label;
 }
 
 module.exports = {

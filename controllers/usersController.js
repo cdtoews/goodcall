@@ -18,13 +18,16 @@ function stripPWFromUser(thisUser) {
 }
 
 const getAllUsers = async (req, res) => {
-    const users = await User.find();
-    if (!users) return res.status(204).json({ 'message': 'No users found' });
+    try {
+        const users = await User.find();
+        if (!users) return res.status(204).json({ 'message': 'No users found' });
 
-    stripPWFromUsers(users);
-    //console.log(users);
-    res.json(users);
-
+        stripPWFromUsers(users);
+        //console.log(users);
+        res.json(users);
+    } catch (err) {
+        console.error(err);
+    }
 
 }
 
@@ -81,7 +84,7 @@ const getMyUser = async (req, res) => {
 
 //TOTEST:
 const updateUser = async (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     try {
 
         if (!req?.body?.id) {
@@ -141,15 +144,15 @@ const createNewUser = async (req, res) => {
     // console.log("====req.body====");
     // console.log(req.body);
     // console.log("====req.body END====");
-
-    const { username } = req.body;
-    if (!username) return res.status(400).json({ 'message': 'Username required.' });
-
-    // check for duplicate usernames in the db
-    const duplicate = await User.findOne({ username: username }).exec();
-    if (duplicate) return res.sendStatus(409); //Conflict 
-
     try {
+        const { username } = req.body;
+        if (!username) return res.status(400).json({ 'message': 'Username required.' });
+
+        // check for duplicate usernames in the db
+        const duplicate = await User.findOne({ username: username }).exec();
+        if (duplicate) return res.sendStatus(409); //Conflict 
+
+
         const isAdmin = req?.body?.admin ? req.body.admin : false;
         const getEmail = req?.body?.getEmail ? req.body.getEmail : false;
 

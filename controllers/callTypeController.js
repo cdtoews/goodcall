@@ -1,9 +1,14 @@
 const CallType = require('../model/CallType');
 
 const getAllCallTypes = async (req, res) => {
+    try{
     const flags = await CallType.find().sort({label: 1});
     if (!flags) return res.status(204).json({ 'message': 'No CallType found.' });
     res.json(flags);
+    }catch(err){
+        console.error(err);
+        
+    }
 }
 
 

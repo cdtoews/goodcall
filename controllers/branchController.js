@@ -3,7 +3,7 @@ const Branch = require('../model/Branch');
 const getBranchesByCompany = async (req, res) => {
     if (!req?.params?.id) return res.status(400).json({ 'message': 'Company ID required.' });
 
-    const branches = await Branch.find({ company_id: req.params.id, active : true }).sort({label: 1}).exec();
+    const branches = await Branch.find({ company_id: req.params.id, active: true }).sort({ label: 1 }).exec();
     if (!branches) {
         return res.status(204).json({ "message": `No branches matches company ID ${req.params.id}.` });
     }
@@ -68,23 +68,31 @@ const activateBranch = async (req, res) => {
 }
 
 const getBranch = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'branch ID required.' });
+    try {
+        if (!req?.params?.id) return res.status(400).json({ 'message': 'branch ID required.' });
 
-    const branch = await Branch.findOne({ _id: req.params.id }).exec();
-    if (!branch) {
-        return res.status(204).json({ "message": `No branch matches ID ${req.params.id}.` });
+        const branch = await Branch.findOne({ _id: req.params.id }).exec();
+        if (!branch) {
+            return res.status(204).json({ "message": `No branch matches ID ${req.params.id}.` });
+        }
+        res.json(branch);
+    } catch (err) {
+        console.error(err);
+        return res.status(400)
     }
-    res.json(branch);
 }
 
 const getBranchObject = async (branchId) => {
-   
-    const branch = await Branch.findOne({ _id: branchId}).exec();
-    if (!branch) {
-        console.log("unable to get branch object for id: "  + branchId)
-        return null;
+    try {
+        const branch = await Branch.findOne({ _id: branchId }).exec();
+        if (!branch) {
+            console.log("unable to get branch object for id: " + branchId)
+            return null;
+        }
+        return branch;
+    } catch (err) {
+        console.error(err);
     }
-    return branch;
 }
 
 module.exports = {

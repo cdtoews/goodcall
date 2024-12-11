@@ -45,17 +45,17 @@ async function parseQueryOnlyMine(req) {
 
 //TOTEST
 const createNewCall = async (req, res) => {
-
-    //console.log(req.body);
-    //we have req.user, which is the username
-    const thisUser = await getUserObject(req, res);
-
-    if (!req?.body?.contact_id ||
-        !req?.body?.call_type) {
-        return res.status(400).json({ 'message': 'Required fields: contact_id,  call_type ' });
-    }
-
     try {
+        //console.log(req.body);
+        //we have req.user, which is the username
+        const thisUser = await getUserObject(req, res);
+
+        if (!req?.body?.contact_id ||
+            !req?.body?.call_type) {
+            return res.status(400).json({ 'message': 'Required fields: contact_id,  call_type ' });
+        }
+
+
         const newCall = new Call();
         newCall.user_id = thisUser._id;
         newCall.contact_id = req.body.contact_id;

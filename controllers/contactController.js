@@ -3,11 +3,13 @@ const boolVerifyRoles = require('../middleware/boolVerifyRoles');
 const ROLES_LIST = require('../config/roles_list');
 
 const createNewContact = async (req, res) => {
-    if (!req?.body?.firstname || !req?.body?.branch_id) {
-        return res.status(400).json({ 'message': 'First name and branch_id are required' });
-    }
 
     try {
+        if (!req?.body?.firstname || !req?.body?.branch_id) {
+            return res.status(400).json({ 'message': 'First name and branch_id are required' });
+        }
+
+
         const result = await Contact.create({
             firstname: req.body.firstname,
             lastname: req.body.lastname,
@@ -28,27 +30,29 @@ const createNewContact = async (req, res) => {
 const updateContact = async (req, res) => {
     try {
 
+
+
+
+        if (!req?.body?.id) {
+            return res.status(400).json({ 'message': 'ID parameter is required.' });
+        }
+
+        const contact = await Contact.findOne({ _id: req.body.id }).exec();
+        if (!contact) {
+            return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
+        }
+        if (req.body?.firstname) contact.firstname = req.body.firstname;
+        if (req.body?.lastname) contact.lastname = req.body.lastname;
+        if (req.body?.email) contact.email = req.body.email;
+        if (req.body?.phone) contact.phone = req.body.phone;
+        if (req.body?.notes) contact.notes = req.body.notes;
+        if (req.body?.active) contact.active = req.body.active;
+        const result = await contact.save();
+        res.json(result);
     } catch (err) {
         console.log(err);
     }
 
-
-    if (!req?.body?.id) {
-        return res.status(400).json({ 'message': 'ID parameter is required.' });
-    }
-
-    const contact = await Contact.findOne({ _id: req.body.id }).exec();
-    if (!contact) {
-        return res.status(204).json({ "message": `No contact matches ID ${req.body.id}.` });
-    }
-    if (req.body?.firstname) contact.firstname = req.body.firstname;
-    if (req.body?.lastname) contact.lastname = req.body.lastname;
-    if (req.body?.email) contact.email = req.body.email;
-    if (req.body?.phone) contact.phone = req.body.phone;
-    if (req.body?.notes) contact.notes = req.body.notes;
-    if (req.body?.active) contact.active = req.body.active;
-    const result = await contact.save();
-    res.json(result);
 }
 
 //TOTEST:
