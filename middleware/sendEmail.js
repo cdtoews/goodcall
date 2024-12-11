@@ -150,26 +150,26 @@ const sendNewUserEmail = (tempPw, username, duration_text) => {
     const fromEmail = process.env.EMAIL_FROM;
     var webAppURL = process.env.WEB_APP_URL;
     const pw_reset_link  = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}` ;
-    const msgSubject = "Password Reset Request";
+    const msgSubject = "You have been added to Call Reports";
 
     const msg = {
         to: username, 
         from: fromEmail,
-        templateId: 'd-aadc5ca07c24028369d5261',
+        templateId: 'd-b411e073f24f411ab4d37d7c2a6b99b0',
         dynamicTemplateData: {
-            email: msgSubject,
             username: username,
             pw_reset_link: pw_reset_link,
             webapp_url: webAppURL,
             duration: duration_text
-        },
+        }
+        ,
         hideWarnings: true
     };
 
     sgMail
     .send(msg)
     .then(() => {
-        console.log('PW Reset Email sent')
+        console.log('New User Email sent')
     })
     .catch((error) => {
         console.error(error)

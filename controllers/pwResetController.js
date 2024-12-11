@@ -27,6 +27,9 @@ const handlePwResetRequest = async (req, res) => {
         } else {
             const hoursLimit = 1;
             const user = await User.findOne({ username: req.body.user }).exec();
+            if (!user.active) {
+                return res.status(400).json({ 'message': 'Inactive User' });
+            }
             if (user) {
                 const now = new Date();
                 const futureDate = new Date(now.getTime() + 60 * 60 * 1000);
@@ -70,6 +73,9 @@ const handlePwResetLink = async (req, res) => {
         const tempPw = req.body.tempPw;
         //console.log(req.body);
         const user = await User.findOne({ username: username }).exec();
+        if (!user.active) {
+            return res.status(400).json({ 'message': 'Inactive User' });
+        }
         if (!user) {
             console.log(`BAD password reset requested for ${req.body.user}`);
             return res.status(400).json({ "message": 'huh?' });

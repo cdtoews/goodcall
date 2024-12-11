@@ -118,15 +118,15 @@ const getMyCalls = async (req, res) => {
             .populate([{
                 path: 'contact_id',
                 model: 'Contact',
-                select: { '_id': 1,'firstname':1, 'lastname':1},
+                select: { '_id': 1, 'firstname': 1, 'lastname': 1 },
                 populate: {
                     path: 'branch_id',
                     model: 'Branch',
-                    select: { '_id': 1,'label':1},
+                    select: { '_id': 1, 'label': 1 },
                     populate: {
                         path: 'company_id',
                         model: 'Company',
-                        select: { '_id': 1,'label':1},
+                        select: { '_id': 1, 'label': 1 },
                     }
                 }
             },
@@ -135,24 +135,24 @@ const getMyCalls = async (req, res) => {
                 model: 'User',
                 select: 'username',
             }
-        
-        ]
-        ).exec();
+
+            ]
+            ).exec();
 
 
         //  .populate([ 'contact_id', 'branch_id' ])
 
-           
 
 
 
-if (!calls) return res.status(204).json({ 'message': 'No calls found' });
-//console.log(calls);
-res.json(calls);
+
+        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        //console.log(calls);
+        res.json(calls);
     } catch (err) {
-    console.error(err);
-    return res.status(404).json({ "message": 'aomething went sideways, in getmycalls' });
-}
+        console.error(err);
+        return res.status(404).json({ "message": 'aomething went sideways, in getmycalls' });
+    }
 
 }
 
@@ -160,21 +160,21 @@ const getAllCalls = async (req, res) => {
     try {
         const searchParams = await parseQuery(req);
 
-       
+
 
         const calls = await Call.find(searchParams)
             .populate([{
                 path: 'contact_id',
                 model: 'Contact',
-                select: { '_id': 1,'firstname':1, 'lastname':1},
+                select: { '_id': 1, 'firstname': 1, 'lastname': 1 },
                 populate: {
                     path: 'branch_id',
                     model: 'Branch',
-                    select: { '_id': 1,'label':1},
+                    select: { '_id': 1, 'label': 1 },
                     populate: {
                         path: 'company_id',
                         model: 'Company',
-                        select: { '_id': 1,'label':1},
+                        select: { '_id': 1, 'label': 1 },
                     }
                 }
             },
@@ -183,9 +183,9 @@ const getAllCalls = async (req, res) => {
                 model: 'User',
                 select: 'username',
             }
-        
-        ]
-        ).exec();
+
+            ]
+            ).exec();
 
 
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });

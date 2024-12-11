@@ -17,6 +17,11 @@ const userSchema = new Schema({
         Editor: Number,
         Admin: Number
     },
+   
+        // "Admin": 5150,
+        // "Editor": 1984,
+        // "User": 2001
+    
     password: {
         type: String,
         required: true
@@ -36,6 +41,17 @@ const userSchema = new Schema({
         default: false
     },
     refreshToken: [String]
+}, {
+    toJSON: { virtuals: true } // <-- include virtuals in `JSON.stringify()`
 });
+
+userSchema.virtual("admin").get(function () {
+    if(this?.roles?.Admin == 5150){
+        return true;
+    }else{
+        return false;
+    }
+
+})
 
 module.exports = mongoose.model('User', userSchema);

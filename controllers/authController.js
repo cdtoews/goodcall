@@ -10,6 +10,10 @@ const handleLogin = async (req, res) => {
 
     const foundUser = await User.findOne({ username: user }).exec();
     if (!foundUser) return res.sendStatus(401); //Unauthorized 
+    if (!foundUser.active) {
+        return res.status(400).json({ 'message': 'Inactive User' });
+    }
+
     // evaluate password 
     const match = await bcrypt.compare(pwd, foundUser.password);
     if (match) {
@@ -31,14 +35,14 @@ const handleLogin = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        const newRefreshTokenArray = 
+        const newRefreshTokenArray =
             !cookies?.jwt
                 ? foundUser.refreshToken
                 : foundUser.refreshToken.filter(rt => rt !== cookies.jwt);
 
         const cookieSecurity = process.env.COOKIE_SECURE || true;
         //console.log(cookieSecurity);
-        if (cookies?.jwt) res.clearCookie('jwt', { httpOnly: true, secure: cookieSecurity, sameSite: 'None'});
+        if (cookies?.jwt) res.clearCookie('jwt', { httpOnly: true, secure: cookieSecurity, sameSite: 'None' });
 
 
         // Saving refreshToken with current user

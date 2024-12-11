@@ -43,47 +43,76 @@ const deleteUser = async (req, res) => {
 }
 
 const getUser = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ "message": 'User ID required' });
-    const user = await User.findOne({ _id: req.params.id }).exec();
-    stripPWFromUser(user);
-    if (!user) {
-        return res.status(204).json({ 'message': `User ID ${req.params.id} not found` });
+    try {
+        if (!req?.params?.id) return res.status(400).json({ "message": 'User ID required' });
+        const user = await User.findOne({ _id: req.params.id }).exec();
+        stripPWFromUser(user);
+        if (!user) {
+            return res.status(204).json({ 'message': `User ID ${req.params.id} not found` });
+        }
+        res.json(user);
+    } catch (err) {
+        console.error(err);
+        return res.status(400).json({ 'message': 'huh?' });
     }
-    res.json(user);
+
 }
 
 const getMyUser = async (req, res) => {
-    //console.log(req);
-    const thisUser = await User.findOne({ username: req.user }).lean().exec();
-    // const myUserId = thisUser._id;
 
-    if (!thisUser) {
-        return res.status(204).json({ 'message': `User ID not found` });
+    try {
+        //console.log(req);
+        const thisUser = await User.findOne({ username: req.user }).lean().exec();
+        // const myUserId = thisUser._id;
+
+        if (!thisUser) {
+            return res.status(204).json({ 'message': `User ID not found` });
+        }
+        stripPWFromUser(thisUser);
+
+        // res.end(JSON.stringify(thisUser));
+        res.json(thisUser);
+    } catch (err) {
+        console.error(err);
+        return res.status(400).json({ 'message': 'huh?' });
     }
-    stripPWFromUser(thisUser);
-
-    // res.end(JSON.stringify(thisUser));
-    res.json(thisUser);
 
 }
 
 //TOTEST:
 const updateUser = async (req, res) => {
-    if (!req?.body?.id) {
-        return res.status(400).json({ 'message': 'ID parameter is required.' });
-    }
+    console.log(req.body);
+    try {
 
-    const user = await user.findOne({ _id: req.body.id }).exec();
-    if (!user) {
-        return res.status(204).json({ "message": `No user matches ID ${req.body.id}.` });
+        if (!req?.body?.id) {
+            return res.status(400).json({ 'message': 'ID parameter is required.' });
+        }
+        const user = await User.findOne({ _id: req.body.id }).exec();
+        if (!user) {
+            return res.status(204).json({ "message": `No user matches ID ${req.body.id}.` });
+        }
+        // id: thisID,
+        // admin: isAdmin,
+        // getEmail: getEmail,
+        // active: isActive
+
+        if (req.body.admin) {
+            user.roles.Admin = 5150;
+        } else {
+            user.roles.Admin = 0;
+        }
+
+        user.receive_emails = req.body.getEmail;
+        user.active = req.body.active;
+
+        const result = await user.save();
+        stripPWFromUser(result);
+        //res.json(result);
+        res.status(200).json({ 'success': `User Updated` });
+    } catch (err) {
+        console.error(err);
+        return res.status(400).json({ 'message': 'huh?' });
     }
-    if (req.body?.user) user.firstname = req.body.firstname;
-    if (req.body?.user) user.lastname = req.body.lastname;
-    if (req.body?.user) user.active = req.body.active;
-    if (req.body?.user) user.roles = req.body.roles;
-    const result = await user.save();
-    stripPWFromUser(result);
-    res.json(result);
 }
 
 function generatePass() {
@@ -108,9 +137,11 @@ const createNewUser = async (req, res) => {
     // user: user,
     // admin: isAdmin,
     // getEmail: getEmail
-    console.log("====req.body====");
-    console.log(req.body);
-    console.log("====req.body END====");
+
+    // console.log("====req.body====");
+    // console.log(req.body);
+    // console.log("====req.body END====");
+
     const { username } = req.body;
     if (!username) return res.status(400).json({ 'message': 'Username required.' });
 
@@ -136,9 +167,9 @@ const createNewUser = async (req, res) => {
         newUser.temp_password = hashedTempPw;
         newUser.pw_reset_timeout = futureDate;
         newUser.receive_emails = getEmail;
-        
 
-  
+
+
 
         if (isAdmin) {
             console.log("IS ADMIN");
@@ -149,15 +180,15 @@ const createNewUser = async (req, res) => {
 
 
         }
-        console.log("newuser");
-        console.log(newUser);
+        // console.log("newuser");
+        // console.log(newUser);
         const result = newUser.save();
         console.log(`New User Created: ${username}`);
 
 
         const duration_text = "1 day";
 
-        //sendEmail.sendNewUserEmail(tempPw, username, duration_text);
+        sendEmail.sendNewUserEmail(tempPw, username, duration_text);
 
 
         console.log(`New User Email Sent for ${username}`);
