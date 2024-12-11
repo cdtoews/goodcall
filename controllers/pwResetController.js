@@ -61,7 +61,7 @@ const handlePwResetRequest = async (req, res) => {
 
 const handlePwResetLink = async (req, res) => {
     try {
-        console.log(req.body);
+        // console.log(req.body);
         if (!req?.body?.username) {
             console.log('WEIRD pwResetLink came in with no ID');
             return res.status(400).json({ "message": 'no username' });
