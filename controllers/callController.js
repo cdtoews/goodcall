@@ -133,7 +133,7 @@ const getMyCalls = async (req, res) => {
             {
                 path: 'user_id',
                 model: 'User',
-                select: 'username',
+                select: { 'username': 1, 'short_username': 1},
             }
 
             ]

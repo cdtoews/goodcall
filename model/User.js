@@ -54,4 +54,17 @@ userSchema.virtual("admin").get(function () {
 
 })
 
+userSchema.virtual("short_username").get(function () {
+    try {
+        var str = this.username;
+        var nameParts = str.split("@");
+        var name = nameParts.length === 2 ? nameParts[0] : "";
+        return name;
+      } catch (err) {
+        console.log(err);
+        return "";
+      }
+
+})
+
 module.exports = mongoose.model('User', userSchema);
