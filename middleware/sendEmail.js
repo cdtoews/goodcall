@@ -77,7 +77,7 @@ const sendCallEntryEmail = async (req) => {
     const msg = {
         to: emails, // Change to your recipient
         from: fromEmail,
-        templateId: 'd-7be70042e8774b83acfe70fcd559fd23',
+        templateId: 'd-bea76cea2738493eacadd23f97a1c82c',
         dynamicTemplateData: {
             email_subject: msgSubject,
             username: req.user,
@@ -121,7 +121,7 @@ const sendPwResetEmail = (tempPw, username, duration_text) => {
     const msg = {
         to: username, 
         from: fromEmail,
-        templateId: 'd-aadc5ca0791d4a4db6c24028369d5261',
+        templateId: 'd-e48ee1b55a624347881e954658e5f22b',
         dynamicTemplateData: {
             email: msgSubject,
             username: username,
@@ -155,7 +155,7 @@ const sendNewUserEmail = (tempPw, username, duration_text) => {
     const msg = {
         to: username, 
         from: fromEmail,
-        templateId: 'd-b411e073f24f411ab4d37d7c2a6b99b0',
+        templateId: 'd-06bccbd95b3a4991b1035b9e93527e8b',
         dynamicTemplateData: {
             username: username,
             pw_reset_link: pw_reset_link,
