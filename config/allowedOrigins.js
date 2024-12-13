@@ -5,7 +5,8 @@ const allowedOrigins = [
     'http://localhost',
     'http://toelap4:3000',
     'http://toelap4',
-    'https://callreports-stg-81ce23a9d77e.herokuapp.com'
+    'https://callreports-stg-81ce23a9d77e.herokuapp.com',
+    'https://callreports.up.railway.app'
 ];
 
 module.exports = allowedOrigins;
