@@ -1,8 +1,12 @@
+require('dotenv').config();
 const sgMail = require("@sendgrid/mail");
 const Contact = require('../model/Contact');
 const companyController = require('../controllers/companyController');
 const branchController = require('../controllers/branchController');
 const User = require('../model/User');
+
+const postmark = require("postmark");
+const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
 function stripPWFromUsers(users) {
     for (const thisUser of users) {
@@ -68,41 +72,72 @@ const sendCallEntryEmail = async (req) => {
 
     var companyName = await companyController.getCompanyName(branch.company_id);
 
-    const users = await getAllEmailUsers();
+    const emailUsers = await getAllEmailUsers();
     //console.log(users);
-    const emails = users.map(user => user.username)
+    const emails = emailUsers.map(user => user.username)
 
     const fromEmail = process.env.EMAIL_FROM;
 
-    const msg = {
-        to: emails, // Change to your recipient
-        from: fromEmail,
-        templateId: 'd-bea76cea2738493eacadd23f97a1c82c',
-        dynamicTemplateData: {
-            email_subject: msgSubject,
-            username: req.user,
-            customer_name: companyName,
-            branch_name: branchName,
-            contact_name: contact_name,
-            call_flag: req.body.call_flag,
-            call_type: req.body.call_type,
-            call_notes: msgNotes,
-            webapp_url: webAppURL
+
+    client.sendEmailWithTemplate({
+        "TemplateModel": {
+            "customer_name": companyName,
+            "username": req.user,
+            "customer_name": companyName,
+            "branch_name": branchName,
+            "email_subject": msgSubject,
+            "contact_name": contact_name,
+            "call_flag": req.body.call_flag,
+            "call_type": req.body.call_type,
+            "call_notes": msgNotes,
+            "webapp_url": webAppURL
+
         },
-        hideWarnings: true
-    };
+        "TemplateId": 38383380,
+        "From": fromEmail,
+        "To": "chris.admin@goodingd.com, chris@yourtechguys.info"
+
+
+    }, function (error, success) {
+        if (error) {
+            console.log("ERROR");
+            console.log(error);
+        } else {
+            console.log("Email sent successfully");
+            // console.log(success);
+        }
+    });
+
+
+    // const msg = {
+    //     to: emails, // Change to your recipient
+    //     from: fromEmail,
+    //     templateId: 'd-bea76cea2738493eacadd23f97a1c82c',
+    //     dynamicTemplateData: {
+    //         email_subject: msgSubject,
+    //         username: req.user,
+    //         customer_name: companyName,
+    //         branch_name: branchName,
+    //         contact_name: contact_name,
+    //         call_flag: req.body.call_flag,
+    //         call_type: req.body.call_type,
+    //         call_notes: msgNotes,
+    //         webapp_url: webAppURL
+    //     },
+    //     hideWarnings: true
+    // };
 
 
 
 
-    sgMail
-        .send(msg)
-        .then(() => {
-            console.log('Email sent')
-        })
-        .catch((error) => {
-            console.error(error)
-        })
+    // sgMail
+    //     .send(msg)
+    //     .then(() => {
+    //         console.log('Email sent')
+    //     })
+    //     .catch((error) => {
+    //         console.error(error)
+    //     })
 
 
 }
@@ -115,11 +150,11 @@ const sendPwResetEmail = (tempPw, username, duration_text) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const fromEmail = process.env.EMAIL_FROM;
     var webAppURL = process.env.WEB_APP_URL;
-    const pw_reset_link  = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}` ;
+    const pw_reset_link = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}`;
     const msgSubject = "Password Reset Request";
 
     const msg = {
-        to: username, 
+        to: username,
         from: fromEmail,
         templateId: 'd-e48ee1b55a624347881e954658e5f22b',
         dynamicTemplateData: {
@@ -133,13 +168,13 @@ const sendPwResetEmail = (tempPw, username, duration_text) => {
     };
 
     sgMail
-    .send(msg)
-    .then(() => {
-        console.log('PW Reset Email sent')
-    })
-    .catch((error) => {
-        console.error(error)
-    })
+        .send(msg)
+        .then(() => {
+            console.log('PW Reset Email sent')
+        })
+        .catch((error) => {
+            console.error(error)
+        })
     //email , pw_reset_link 
 
 }
@@ -149,11 +184,11 @@ const sendNewUserEmail = (tempPw, username, duration_text) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const fromEmail = process.env.EMAIL_FROM;
     var webAppURL = process.env.WEB_APP_URL;
-    const pw_reset_link  = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}` ;
+    const pw_reset_link = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}`;
     const msgSubject = "You have been added to Call Reports";
 
     const msg = {
-        to: username, 
+        to: username,
         from: fromEmail,
         templateId: 'd-06bccbd95b3a4991b1035b9e93527e8b',
         dynamicTemplateData: {
@@ -167,13 +202,13 @@ const sendNewUserEmail = (tempPw, username, duration_text) => {
     };
 
     sgMail
-    .send(msg)
-    .then(() => {
-        console.log('New User Email sent')
-    })
-    .catch((error) => {
-        console.error(error)
-    })
+        .send(msg)
+        .then(() => {
+            console.log('New User Email sent')
+        })
+        .catch((error) => {
+            console.error(error)
+        })
     //email , pw_reset_link 
 
 }
@@ -188,10 +223,10 @@ const sendMonthlyEmail = (req, res, next) => {
 
 
 
-module.exports = { 
-    sendCallEntryEmail, 
-    sendMonthlyEmail, 
-    sendPwResetEmail, 
-    sendNewUserEmail, 
-    testFunc 
+module.exports = {
+    sendCallEntryEmail,
+    sendMonthlyEmail,
+    sendPwResetEmail,
+    sendNewUserEmail,
+    testFunc
 };
