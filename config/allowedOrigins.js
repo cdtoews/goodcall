@@ -15,7 +15,8 @@ const allowedOrigins = () => {
             'http://localhost:3000',
             'http://localhost',
             'http://toelap4:3000',
-            'http://toelap4'
+            'http://toelap4',
+            'http://192.168.68.132:3000'
         ];
     }
 
