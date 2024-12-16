@@ -203,7 +203,7 @@ const getCallByBranch = async (req, res) => {
     //need to get user_id of user
     try {
 
-        const searchParams = await parseQueryOnlyMIne(req);
+        const searchParams = await parseQueryOnlyMine(req);
         searchParams.branch_id = req.params.id;
         //searchParams.active=true;
 
@@ -268,7 +268,7 @@ const getCallByContact = async (req, res) => {
 
     try {
         if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-        var searchParams = await parseQueryOnlyMIne(req);
+        var searchParams = await parseQueryOnlyMine(req);
         searchParams.contact_id = req.params.id;
         const calls = await Call.find(searchParams);
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });

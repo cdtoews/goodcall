@@ -1,13 +1,22 @@
 const Branch = require('../model/Branch');
 
 const getBranchesByCompany = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'Company ID required.' });
+    try {
+        if (!req?.params?.id) return res.status(400).json({ 'message': 'Company ID required.' });
 
-    const branches = await Branch.find({ company_id: req.params.id, active: true }).sort({ label: 1 }).exec();
-    if (!branches) {
-        return res.status(204).json({ "message": `No branches matches company ID ${req.params.id}.` });
+        const branches = await Branch.find({ company_id: req.params.id, active: true }).sort({ label: 1 }).exec();
+        if (!branches) {
+            return res.status(204).json({ "message": `No branches matches company ID ${req.params.id}.` });
+        }
+        res.json(branches);
+    } catch (err) {
+        console.error(err);
+        return res.status(400).json({ 'message': 'something went sideways' });
+
     }
-    res.json(branches);
+
+
+
 }
 
 const createNewBranch = async (req, res) => {

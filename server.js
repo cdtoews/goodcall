@@ -55,6 +55,7 @@ app.use('/contacts', require('./routes/api/contacts'));
 app.use('/calls', require('./routes/api/calls'));
 app.use('/flags', require('./routes/api/flags'));
 app.use('/calltypes', require('./routes/api/callTypes'));
+app.use('/admin', require('./routes/api/admin'));
 
 
 app.all('*', (req, res) => {
