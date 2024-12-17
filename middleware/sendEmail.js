@@ -53,10 +53,6 @@ function getContact(contact_id) {
 //#region New Call
 const sendCallEntryEmail = async (req) => {
 
-    // using Twilio SendGrid's v3 Node.js Library
-    // https://github.com/sendgrid/sendgrid-nodejs
-
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
     var msgSubject = "New Call Report Entered by " + req.user;
 
@@ -118,7 +114,6 @@ const testFunc = () => {
 
 //#region PW Reset
 const sendPwResetEmail = (tempPw, username, duration_text) => {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const fromEmail = process.env.EMAIL_FROM;
     var webAppURL = process.env.WEB_APP_URL;
     const pw_reset_link = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}`;
@@ -155,8 +150,7 @@ const sendPwResetEmail = (tempPw, username, duration_text) => {
 //#region New User
 const sendNewUserEmail = (tempPw, username, duration_text) => {
     //console.log("inside SNUE");
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-    const fromEmail = process.env.EMAIL_FROM;
+   const fromEmail = process.env.EMAIL_FROM;
     var webAppURL = process.env.WEB_APP_URL;
     const pw_reset_link = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}`;
     
