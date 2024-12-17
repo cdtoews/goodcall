@@ -51,6 +51,7 @@ function getContact(contact_id) {
 
 }
 
+//#region New Call
 const sendCallEntryEmail = async (req) => {
 
     // using Twilio SendGrid's v3 Node.js Library
@@ -75,7 +76,7 @@ const sendCallEntryEmail = async (req) => {
     const emailUsers = await getAllEmailUsers();
     //console.log(users);
     const emails = emailUsers.map(user => user.username)
-
+    const emailList = emails.join(", ");
     const fromEmail = process.env.EMAIL_FROM;
 
 
@@ -95,49 +96,18 @@ const sendCallEntryEmail = async (req) => {
         },
         "TemplateId": 38383380,
         "From": fromEmail,
-        "To": "chris.admin@goodingd.com, chris@yourtechguys.info"
+        "To": emailList
 
 
     }, function (error, success) {
         if (error) {
-            console.log("ERROR");
+            console.log("ERROR on New Call Email");
             console.log(error);
         } else {
-            console.log("Email sent successfully");
+            console.log("New Call Email sent successfully");
             // console.log(success);
         }
     });
-
-
-    // const msg = {
-    //     to: emails, // Change to your recipient
-    //     from: fromEmail,
-    //     templateId: 'd-bea76cea2738493eacadd23f97a1c82c',
-    //     dynamicTemplateData: {
-    //         email_subject: msgSubject,
-    //         username: req.user,
-    //         customer_name: companyName,
-    //         branch_name: branchName,
-    //         contact_name: contact_name,
-    //         call_flag: req.body.call_flag,
-    //         call_type: req.body.call_type,
-    //         call_notes: msgNotes,
-    //         webapp_url: webAppURL
-    //     },
-    //     hideWarnings: true
-    // };
-
-
-
-
-    // sgMail
-    //     .send(msg)
-    //     .then(() => {
-    //         console.log('Email sent')
-    //     })
-    //     .catch((error) => {
-    //         console.error(error)
-    //     })
 
 
 }
@@ -146,6 +116,8 @@ const testFunc = () => {
     console.log("inside testfunc");
 }
 
+
+//#region PW Reset
 const sendPwResetEmail = (tempPw, username, duration_text) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
     const fromEmail = process.env.EMAIL_FROM;
@@ -153,32 +125,63 @@ const sendPwResetEmail = (tempPw, username, duration_text) => {
     const pw_reset_link = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}`;
     const msgSubject = "Password Reset Request";
 
-    const msg = {
-        to: username,
-        from: fromEmail,
-        templateId: 'd-e48ee1b55a624347881e954658e5f22b',
-        dynamicTemplateData: {
-            email: msgSubject,
-            username: username,
-            pw_reset_link: pw_reset_link,
-            webapp_url: webAppURL,
-            duration: duration_text
-        },
-        hideWarnings: true
-    };
 
-    sgMail
-        .send(msg)
-        .then(() => {
-            console.log('PW Reset Email sent')
-        })
-        .catch((error) => {
-            console.error(error)
-        })
-    //email , pw_reset_link 
+    client.sendEmailWithTemplate({
+        "TemplateModel": {
+            "username": username,
+            "pw_reset_link": pw_reset_link,
+           "email_subject": msgSubject,
+            "email": msgSubject,
+            "duration": duration_text,
+            "webapp_url": webAppURL
+
+        },
+        "TemplateId": 38396447,
+        "From": fromEmail,
+        "To": username
+
+
+    }, function (error, success) {
+        if (error) {
+            console.log("ERROR on PW Reset email");
+            console.log(error);
+        } else {
+            console.log("PW Reset Email sent successfully");
+            // console.log(success);
+        }
+    });
+
+
+
+
+
+    // const msg = {
+    //     to: username,
+    //     from: fromEmail,
+    //     templateId: 'd-e48ee1b55a624347881e954658e5f22b',
+    //     dynamicTemplateData: {
+    //         email: msgSubject,
+    //         username: username,
+    //         pw_reset_link: pw_reset_link,
+    //         webapp_url: webAppURL,
+    //         duration: duration_text
+    //     },
+    //     hideWarnings: true
+    // };
+
+    // sgMail
+    //     .send(msg)
+    //     .then(() => {
+    //         console.log('PW Reset Email sent')
+    //     })
+    //     .catch((error) => {
+    //         console.error(error)
+    //     })
+    // //email , pw_reset_link 
 
 }
 
+//#region New User
 const sendNewUserEmail = (tempPw, username, duration_text) => {
     console.log("inside SNUE");
     sgMail.setApiKey(process.env.SENDGRID_API_KEY)
