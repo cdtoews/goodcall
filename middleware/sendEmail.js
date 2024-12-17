@@ -1,5 +1,4 @@
 require('dotenv').config();
-const sgMail = require("@sendgrid/mail");
 const Contact = require('../model/Contact');
 const companyController = require('../controllers/companyController');
 const branchController = require('../controllers/branchController');
