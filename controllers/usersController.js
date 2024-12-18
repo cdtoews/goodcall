@@ -31,6 +31,28 @@ const getAllUsers = async (req, res) => {
 
 }
 
+const getUserList = async (req, res) => {
+    try {
+        const users = await User.find();
+        if (!users) return res.status(204).json({ 'message': 'No users found' });
+
+        for (const thisUser of users) {
+            thisUser.roles = [];
+            thisUser.password = null;
+            thisUser.temp_password = null;
+            thisUser.refreshToken = [];
+            thisUser.active = null;
+            thisUser.admin = null;
+            thisUser.receive_emails = null;
+            thisUser.pw_reset_timeout = null;
+        }
+        
+        res.json(users);
+    } catch (err) {
+        console.error(err);
+    }
+
+}
 
 
 //receive_emails
@@ -205,6 +227,7 @@ const createNewUser = async (req, res) => {
 
 module.exports = {
     getAllUsers,
+    getUserList,
     deleteUser,
     getUser,
     getMyUser,
