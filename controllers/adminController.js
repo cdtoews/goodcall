@@ -37,7 +37,7 @@ const getBlankMonthlySummaryData = async () => {
 
 // #region MSR
 const getMonthlySummeryReport = async (req, res) => {
-    console.log("MSR");
+    //console.log("MSR");
     try {
         if (!req?.query?.month) return res.status(400).json({ 'message': 'month required.' }); //months are 0-11
         if (!req?.query?.year) return res.status(400).json({ 'message': 'year required.' });
@@ -135,7 +135,7 @@ const getMonthlySummeryReport = async (req, res) => {
         // table.push(totalRow);
 
         // console.log(JSON.stringify(data));
-        //console.log(table);
+        //   console.log(table);
 
         res.json(table);
 
@@ -147,11 +147,142 @@ const getMonthlySummeryReport = async (req, res) => {
 }
 
 
-// #region SCR
+// #region SCFR
+
+const getBlankSFCRSummaryData = async () => {
+    var table = [];
+
+    //get all flags:
+    const flags = await Flag.find().sort({ label: 1 });
+
+    for (let i = 1; i <= 5; i++) {
+        var thisRow = {};
+        thisRow.weekNum = i
+        thisRow.rowLabel = i
+        thisRow["total"] = -1; //for totals... kinda obvious??
+        flags.forEach(function (flag) {
+            //console.log(`${user.username} -- ${flag.label}`);
+            thisRow[flag.label.split(" ")[0]] = -1;
+            //thisRow.flag = 0;
+        });
+
+        table.push(thisRow);
+
+    };
+    //console.log(table);
+    return table;
+    //console.log(table);
+
+}
+
+function getWeekOfMonth(date) {
+    const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    const firstDayWeekNumber = firstDayOfMonth.getDay(); // 0 for Sunday, 1 for Monday, etc.
+    const dayOfMonth = date.getDate();
+    return Math.ceil((dayOfMonth + firstDayWeekNumber) / 7);
+}
+
+
+function getLetterFromFlag(flagName) {
+    return flagName.split(" ")[0];
+}
+
 const getSalesCallFreqReport = async (req, res) => {
+    try {
+
+        if (!req?.query?.month) return res.status(400).json({ 'message': 'month required.' }); //months are 0-11
+        if (!req?.query?.year) return res.status(400).json({ 'message': 'year required.' });
+        if (!req?.query?.user_id) return res.status(400).json({ 'message': 'user_id required.' });
+
+
+        const thisMonth = req.query.month;
+        const thisYear = req.query.year;
+        const user_id = req.query.user_id;
 
 
 
+        let gtDate = new Date();
+        // ltDate.setMonth(10); //months are 0 to 11
+        // ltDate.setDate(1);//day of month
+        gtDate.setFullYear(thisYear, thisMonth, 1);
+        gtDate.setHours(0);
+        gtDate.setMinutes(0);
+        //console.log(gtDate);
+
+        let ltDate = new Date();
+        ltDate.setTime(gtDate.getTime());
+        ltDate.setMonth(ltDate.getMonth() + 1);
+
+
+        //userid; 673eae4d604dc6a026a9cca4
+        var data = await Call.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId(user_id), call_date: { $gt: gtDate, $lt: ltDate } } },
+            {
+                $project: {
+                    call_date: 1,
+                    call_flag: 1,
+                    short_flag: {
+                        $function: {
+                            body: getLetterFromFlag,
+                            args: ["$call_flag"],
+                            lang: "js"
+                        }
+                    },
+                    weekOfMonth: {
+                        $function: {
+                            body: getWeekOfMonth,
+                            args: ["$call_date"],
+                            lang: "js"
+                        }
+                    }
+                }
+            }
+            ,
+            {
+                $group: {
+                    _id: {
+                        weekOfMonth: "$weekOfMonth",
+                        flag: "$short_flag"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: {
+                    "_id.weekOfMonth": 1,
+                    "_id.flag": 1
+                }
+            }
+        ]);
+
+        //console.log(data);
+
+        //now get empty table data
+        var table = await getBlankSFCRSummaryData();
+
+        data.forEach(function (eachCall) {
+
+            var thisWeekNum = eachCall._id.weekOfMonth;
+
+            //let's look through empty table for username
+            var thisRow = table.find((element) => element.weekNum === thisWeekNum);
+            var thisKey = eachCall._id.flag.split(" ")[0];
+            thisRow[thisKey] = eachCall.count;
+            if (thisRow["total"] === -1) thisRow["total"] = 0;
+            thisRow["total"] += eachCall.count; //update totals for this user
+
+        });
+
+        console.log(table);
+
+        res.json(table);
+
+
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ 'message': 'trouble getting SCFR' });
+    }
 }
 
 //#region Popup
@@ -197,80 +328,142 @@ const getMSRPopupData = async (req, res) => {
     //    user_id: 673eae4d604dc6a026a9cca4
     //    Month: 11
     //  year: 2024
-   // /admin/pop/?month=11&year=2024&user_id=673eae4d604dc6a026a9cca4&callFlag=A%20%28Architect%29
+    // /admin/pop/?month=11&year=2024&user_id=673eae4d604dc6a026a9cca4&callFlag=A%20%28Architect%29
+    try {
 
+        const thisMonth = req.query.month;
+        const thisYear = req.query.year;
+        const user_id = req.query.user_id;
+        const call_flag = req.query.callFlag;
 
-    const thisMonth = req.query.month;
-    const thisYear = req.query.year;
-    const user_id = req.query.user_id;
-    const call_flag = req.query.callFlag;
+        //monthly summary report
+        //going to set to last month (nov)
 
-    //monthly summary report
-    //going to set to last month (nov)
+        let gtDate = new Date();
+        // ltDate.setMonth(10); //months are 0 to 11
+        // ltDate.setDate(1);//day of month
+        gtDate.setFullYear(thisYear, thisMonth, 1);
+        gtDate.setHours(0);
+        gtDate.setMinutes(0);
+        //console.log(gtDate);
 
-    let gtDate = new Date();
-    // ltDate.setMonth(10); //months are 0 to 11
-    // ltDate.setDate(1);//day of month
-    gtDate.setFullYear(thisYear, thisMonth, 1);
-    gtDate.setHours(0);
-    gtDate.setMinutes(0);
-    //console.log(gtDate);
+        let ltDate = new Date();
+        ltDate.setTime(gtDate.getTime());
+        ltDate.setMonth(ltDate.getMonth() + 1);
 
-    let ltDate = new Date();
-    ltDate.setTime(gtDate.getTime());
-    ltDate.setMonth(ltDate.getMonth() + 1);
+        searchParams = {};
+        var gtlt = {};
+        gtlt.$gt = gtDate;
+        gtlt.$lt = ltDate;
 
-    searchParams = {};
-    var gtlt = {};
-    gtlt.$gt = gtDate;
-    gtlt.$lt = ltDate;
+        searchParams.call_date = gtlt;
+        searchParams.user_id = new mongoose.Types.ObjectId(user_id);
 
-    searchParams.call_date = gtlt;
-    searchParams.user_id =   new mongoose.Types.ObjectId(user_id);
-  
-    if(call_flag !== "ALL"){
-        searchParams.call_flag = call_flag;
-    }
-    
-
-    // console.log("popup search")
-    // console.log(searchParams);
-
-
-    const calls = await Call.find(searchParams)
-        .populate([{
-            path: 'contact_id',
-            model: 'Contact',
-            select: { '_id': 1, 'firstname': 1, 'lastname': 1 },
-            populate: {
-                path: 'branch_id',
-                model: 'Branch',
-                select: { '_id': 1, 'label': 1 },
-                populate: {
-                    path: 'company_id',
-                    model: 'Company',
-                    select: { '_id': 1, 'label': 1 },
-                }
-            }
-        },
-        {
-            path: 'user_id',
-            model: 'User',
-            select: { 'username': 1, 'short_username': 1 },
+        if (call_flag !== "ALL") {
+            searchParams.call_flag = call_flag;
         }
 
-        ]
-        ).exec();
+
+        // console.log("popup search")
+        // console.log(searchParams);
+
+
+        const calls = await Call.find(searchParams)
+            .populate([{
+                path: 'contact_id',
+                model: 'Contact',
+                select: { '_id': 1, 'firstname': 1, 'lastname': 1 },
+                populate: {
+                    path: 'branch_id',
+                    model: 'Branch',
+                    select: { '_id': 1, 'label': 1 },
+                    populate: {
+                        path: 'company_id',
+                        model: 'Company',
+                        select: { '_id': 1, 'label': 1 },
+                    }
+                }
+            },
+            {
+                path: 'user_id',
+                model: 'User',
+                select: { 'username': 1, 'short_username': 1 },
+            }
+
+            ]
+            ).exec();
 
 
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
-       // console.log(calls);
+        // console.log(calls);
         res.json(calls);
-
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'something went sideways, in' });
+    }
 }
 
 const getSCFRpopupData = async (req, res, matchObject) => {
+    try {
+        let ltDate = new Date();
+        // ltDate.setMonth(10); //months are 0 to 11
+        // ltDate.setDate(1);//day of month
+        ltDate.setFullYear(2024, 10, 1);
+        ltDate.setHours(0);
+        ltDate.setMinutes(0);
 
+        let gtDate = new Date();
+        gtDate.setFullYear(2024, 11, 31);
+        gtDate.setHours(0);
+        gtDate.setMinutes(0);
+
+        //userid; 673eae4d604dc6a026a9cca4
+        var data = await Call.aggregate([
+            { $match: { user_id: new mongoose.Types.ObjectId("673eae4d604dc6a026a9cca4"), call_date: { $gt: ltDate, $lt: gtDate } } },
+            {
+                $project: {
+                    call_date: 1,
+                    call_flag: 1,
+                    short_flag: {
+                        $function: {
+                            body: getLetterFromFlag,
+                            args: ["$call_flag"],
+                            lang: "js"
+                        }
+                    },
+                    weekOfMonth: {
+                        $function: {
+                            body: getWeekOfMonth,
+                            args: ["$call_date"],
+                            lang: "js"
+                        }
+                    }
+                }
+            }
+            ,
+            {
+                $group: {
+                    _id: {
+                        weekOfMonth: "$weekOfMonth",
+                        flag: "$short_flag"
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: {
+                    "_id.weekOfMonth": 1,
+                    "_id.flag": 1
+                }
+            }
+        ]);
+
+        //console.log(data);
+        res.json(data);
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'something went sideways' });
+    }
 
 
 

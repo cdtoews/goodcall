@@ -15,7 +15,7 @@ router.route('/msr')
     .get(verifyRoles(ROLES_LIST.Admin), adminController.getMonthlySummeryReport);
 
     
-    router.route('/pop')
+router.route('/pop')
     .get(verifyRoles(ROLES_LIST.Admin), adminController.getPopupTableData);
 
 
