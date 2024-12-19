@@ -43,7 +43,7 @@ async function parseQueryOnlyMine(req) {
     return result;
 }
 
-//TOTEST
+//#region New Call
 const createNewCall = async (req, res) => {
     try {
         //console.log(req.body);
@@ -75,7 +75,7 @@ const createNewCall = async (req, res) => {
 }
 
 
-//TOTEST:
+//#region Update
 const updateCall = async (req, res) => {
     if (!req?.body?.id) {
         return res.status(400).json({ 'message': 'ID parameter is required.' });
@@ -107,13 +107,14 @@ const deleteCall = async (req, res) => {
 
 
 
-
+//#region MyCalls
 const getMyCalls = async (req, res) => {
     try {
         // console.log('inside gmc');
         const searchParams = await parseQueryOnlyMine(req);
         // console.log(searchParams);
-
+        console.log("get my calls");
+        //console.log(searchParams);
         const calls = await Call.find(searchParams)
             .populate([{
                 path: 'contact_id',
@@ -133,7 +134,7 @@ const getMyCalls = async (req, res) => {
             {
                 path: 'user_id',
                 model: 'User',
-                select: { 'username': 1, 'short_username': 1},
+                select: { 'username': 1, 'short_username': 1 },
             }
 
             ]

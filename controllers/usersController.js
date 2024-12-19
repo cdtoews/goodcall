@@ -33,7 +33,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserList = async (req, res) => {
     try {
-        const users = await User.find();
+        const users = await User.find({active: true});
         if (!users) return res.status(204).json({ 'message': 'No users found' });
 
         for (const thisUser of users) {

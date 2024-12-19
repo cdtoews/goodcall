@@ -8,10 +8,15 @@ const verifyRoles = require('../../middleware/verifyRoles');
 
 
 router.route('/scfr')
-    .get(verifyRoles(ROLES_LIST.Admin), adminController.getSalesCallFreqReport)
+    .get(verifyRoles(ROLES_LIST.Admin), adminController.getSalesCallFreqReport);
     
 
 router.route('/msr')
-    .get(verifyRoles(ROLES_LIST.Admin), adminController.getMonthlySummeryReport)
+    .get(verifyRoles(ROLES_LIST.Admin), adminController.getMonthlySummeryReport);
+
+    
+    router.route('/pop')
+    .get(verifyRoles(ROLES_LIST.Admin), adminController.getPopupTableData);
+
 
 module.exports = router;
