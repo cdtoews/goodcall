@@ -171,7 +171,7 @@ const createNewUser = async (req, res) => {
         if (!username) return res.status(400).json({ 'message': 'Username required.' });
 
         // check for duplicate usernames in the db
-        const duplicate = await User.findOne({ username: username }).exec();
+        const duplicate = await User.findOne({ username: username.toLowerCase() }).exec();
         if (duplicate) return res.sendStatus(409); //Conflict 
 
 
@@ -187,7 +187,7 @@ const createNewUser = async (req, res) => {
         const hashedPwd = await bcrypt.hash(pw, 10);
 
         const newUser = new User();
-        newUser.username = username;
+        newUser.username = username.toLowerCase();
         newUser.password = hashedPwd;
         newUser.temp_password = hashedTempPw;
         newUser.pw_reset_timeout = futureDate;

@@ -8,8 +8,8 @@ const handleLogin = async (req, res) => {
         const cookies = req.cookies;
         const { user, pwd } = req.body;
         if (!user || !pwd) return res.status(400).json({ 'message': 'Username and password are required.' });
-
-        const foundUser = await User.findOne({ username: user }).exec();
+        
+        const foundUser = await User.findOne({ username: user.toLowerCase() }).exec();
         if (!foundUser) return res.sendStatus(401); //Unauthorized 
         if (!foundUser.active) {
             return res.status(400).json({ 'message': 'Inactive User' });
