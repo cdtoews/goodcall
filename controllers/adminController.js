@@ -270,10 +270,11 @@ const getSalesCallFreqReport = async (req, res) => {
             thisRow[thisKey] = eachCall.count;
             if (thisRow["total"] === -1) thisRow["total"] = 0;
             thisRow["total"] += eachCall.count; //update totals for this user
+            thisRow["user_id"] = user_id;
 
         });
 
-        console.log(table);
+       // console.log(table);
 
         res.json(table);
 
@@ -314,10 +315,12 @@ const getPopupTableData = async (req, res) => {
 
 
 
-    if (!req?.query?.weekOfMonth) {
+    if (!req?.query?.weekNumber) {
+        console.log("no week number");
         getMSRPopupData(req, res);
     } else {
         ///we have a week of month, this is from the other SCFR
+        console.log(`WEEK NUMBER FOUND: ${weekNumber}`);
         getSCFRpopupData(req, res);
     }
 
@@ -405,21 +408,42 @@ const getMSRPopupData = async (req, res) => {
 
 const getSCFRpopupData = async (req, res, matchObject) => {
     try {
-        let ltDate = new Date();
-        // ltDate.setMonth(10); //months are 0 to 11
-        // ltDate.setDate(1);//day of month
-        ltDate.setFullYear(2024, 10, 1);
-        ltDate.setHours(0);
-        ltDate.setMinutes(0);
+        const thisMonth = req.query.month;
+        const thisYear = req.query.year;
+        const user_id = req.query.user_id;
+        const call_flag = req.query.callFlag;
+        const weekNumber = req.query.weekNumber;
+        //monthly summary report
+        //going to set to last month (nov)
 
         let gtDate = new Date();
-        gtDate.setFullYear(2024, 11, 31);
+        // ltDate.setMonth(10); //months are 0 to 11
+        // ltDate.setDate(1);//day of month
+        gtDate.setFullYear(thisYear, thisMonth, 1);
         gtDate.setHours(0);
         gtDate.setMinutes(0);
+        //console.log(gtDate);
+
+        let ltDate = new Date();
+        ltDate.setTime(gtDate.getTime());
+        ltDate.setMonth(ltDate.getMonth() + 1);
+
+        searchParams = {};
+        var gtlt = {};
+        gtlt.$gt = gtDate;
+        gtlt.$lt = ltDate;
+
+        searchParams.call_date = gtlt;
+        searchParams.user_id = new mongoose.Types.ObjectId(user_id);
+
+        if (call_flag !== "ALL") {
+            searchParams.call_flag = call_flag;
+        }
+
 
         //userid; 673eae4d604dc6a026a9cca4
         var data = await Call.aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId("673eae4d604dc6a026a9cca4"), call_date: { $gt: ltDate, $lt: gtDate } } },
+            { $match: { user_id: new mongoose.Types.ObjectId("673eae4d604dc6a026a9cca4"), call_date: { $gt: gtDate, $lt: ltDate } } },
             {
                 $project: {
                     call_date: 1,
