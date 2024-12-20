@@ -288,6 +288,8 @@ const getSalesCallFreqReport = async (req, res) => {
 
 //#region Popup
 const getPopupTableData = async (req, res) => {
+   try{
+   
     //let's parse params, shall we
     if (!req?.query?.user_id) return res.status(400).json({ 'message': 'user_id required' });
     if (!req?.query?.callFlag) return res.status(400).json({ 'message': 'callFlag required' });
@@ -323,6 +325,11 @@ const getPopupTableData = async (req, res) => {
         console.log(`WEEK NUMBER FOUND: ${weekNumber}`);
         getSCFRpopupData(req, res);
     }
+
+   } catch(err){
+    console.error(err);
+    return res.status(404).json({ "message": 'something went sideways, in' });
+   }
 
 }
 
