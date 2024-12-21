@@ -50,7 +50,7 @@ const updateContact = async (req, res) => {
         const result = await contact.save();
         res.json(result);
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 
 }
@@ -68,7 +68,7 @@ const deactivateContact = async (req, res) => {
         const result = await contact.save();
         res.json(result);
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 
 
@@ -88,7 +88,7 @@ const activateContact = async (req, res) => {
         const result = await contact.save();
         res.json(result);
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 
 
@@ -105,7 +105,7 @@ const getContactByBranch = async (req, res) => {
         if (!contacts) return res.status(204).json({ 'message': 'No contacts found' });
         res.json(contacts);
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 
 
@@ -123,7 +123,7 @@ const getContact = async (req, res) => {
         }
         res.json(contact);
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 
 }

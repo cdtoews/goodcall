@@ -113,7 +113,7 @@ const getMyCalls = async (req, res) => {
         // console.log('inside gmc');
         const searchParams = await parseQueryOnlyMine(req);
         // console.log(searchParams);
-        console.log("get my calls");
+        //console.log("get my calls");
         //console.log(searchParams);
         const calls = await Call.find(searchParams)
             .populate([{

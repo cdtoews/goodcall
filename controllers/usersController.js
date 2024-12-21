@@ -158,7 +158,7 @@ function generatePass() {
 
 
 const createNewUser = async (req, res) => {
-    console.log("cnu");
+    //console.log("cnu");
     // user: user,
     // admin: isAdmin,
     // getEmail: getEmail
@@ -167,11 +167,11 @@ const createNewUser = async (req, res) => {
     // console.log(req.body);
     // console.log("====req.body END====");
     try {
-        const { username } = req.body;
+        var { username } = req.body;
         if (!username) return res.status(400).json({ 'message': 'Username required.' });
-
+        username = username.toLowerCase();
         // check for duplicate usernames in the db
-        const duplicate = await User.findOne({ username: username.toLowerCase() }).exec();
+        const duplicate = await User.findOne({ username: username }).exec();
         if (duplicate) return res.sendStatus(409); //Conflict 
 
 
@@ -187,7 +187,7 @@ const createNewUser = async (req, res) => {
         const hashedPwd = await bcrypt.hash(pw, 10);
 
         const newUser = new User();
-        newUser.username = username.toLowerCase();
+        newUser.username = username;
         newUser.password = hashedPwd;
         newUser.temp_password = hashedTempPw;
         newUser.pw_reset_timeout = futureDate;
@@ -197,7 +197,7 @@ const createNewUser = async (req, res) => {
 
 
         if (isAdmin) {
-            console.log("IS ADMIN");
+            //console.log("IS ADMIN");
             // newUser.roles.User = 2001;
             // newUser.roles.Admin = 5150
             newUser.set('roles.Admin', 5150);

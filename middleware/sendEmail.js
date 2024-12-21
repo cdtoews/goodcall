@@ -29,7 +29,7 @@ const getAllEmailUsers = async (req, res) => {
         stripPWFromUsers(users);
         return users;
     } catch (err) {
-        console.log(err);
+        console.error(err);
         return [];
     }
 
@@ -45,7 +45,7 @@ function getContact(contact_id) {
         }
         return contact;
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 
 }

@@ -274,7 +274,7 @@ const getSalesCallFreqReport = async (req, res) => {
 
         });
 
-       // console.log(table);
+        // console.log(table);
 
         res.json(table);
 
@@ -288,48 +288,49 @@ const getSalesCallFreqReport = async (req, res) => {
 
 //#region Popup
 const getPopupTableData = async (req, res) => {
-   try{
-   
-    //let's parse params, shall we
-    if (!req?.query?.user_id) return res.status(400).json({ 'message': 'user_id required' });
-    if (!req?.query?.callFlag) return res.status(400).json({ 'message': 'callFlag required' });
-    if (!req?.query?.month) return res.status(400).json({ 'message': 'month required' });
-    if (!req?.query?.year) return res.status(400).json({ 'message': 'year required' });
+    //return;
+    try {
 
-    const thisMonth = req.query.month;
-    const thisYear = req.query.year;
-    const user_id = req.query.user_id;
+        //let's parse params, shall we
+        if (!req?.query?.user_id) return res.status(400).json({ 'message': 'user_id required' });
+        if (!req?.query?.callFlag) return res.status(400).json({ 'message': 'callFlag required' });
+        if (!req?.query?.month) return res.status(400).json({ 'message': 'month required' });
+        if (!req?.query?.year) return res.status(400).json({ 'message': 'year required' });
 
-    //monthly summary report
-    //going to set to last month (nov)
+        const thisMonth = req.query.month;
+        const thisYear = req.query.year;
+        const user_id = req.query.user_id;
 
-    // let gtDate = new Date();
-    // // ltDate.setMonth(10); //months are 0 to 11
-    // // ltDate.setDate(1);//day of month
-    // gtDate.setFullYear(thisYear, thisMonth, 1);
-    // gtDate.setHours(0);
-    // gtDate.setMinutes(0);
-    // //console.log(gtDate);
+        //monthly summary report
+        //going to set to last month (nov)
 
-    // let ltDate = new Date();
-    // ltDate.setTime(gtDate.getTime());
-    // ltDate.setMonth(ltDate.getMonth() + 1);
+        // let gtDate = new Date();
+        // // ltDate.setMonth(10); //months are 0 to 11
+        // // ltDate.setDate(1);//day of month
+        // gtDate.setFullYear(thisYear, thisMonth, 1);
+        // gtDate.setHours(0);
+        // gtDate.setMinutes(0);
+        // //console.log(gtDate);
+
+        // let ltDate = new Date();
+        // ltDate.setTime(gtDate.getTime());
+        // ltDate.setMonth(ltDate.getMonth() + 1);
 
 
 
-    if (!req?.query?.weekNumber) {
-        console.log("no week number");
-        getMSRPopupData(req, res);
-    } else {
-        ///we have a week of month, this is from the other SCFR
-        console.log(`WEEK NUMBER FOUND: ${weekNumber}`);
-        getSCFRpopupData(req, res);
+        if (!req?.query?.weekNumber) {
+            //console.log("no week number");
+            getMSRPopupData(req, res);
+        } else {
+            ///we have a week of month, this is from the other SCFR
+            //console.log(`WEEK NUMBER FOUND: ${req.query.weekNumber}`);
+            getSCFRpopupData(req, res);
+        }
+
+    } catch (err) {
+        console.error(err);
+        return res.status(404).json({ "message": 'something went sideways, in' });
     }
-
-   } catch(err){
-    console.error(err);
-    return res.status(404).json({ "message": 'something went sideways, in' });
-   }
 
 }
 
@@ -415,6 +416,7 @@ const getMSRPopupData = async (req, res) => {
 
 const getSCFRpopupData = async (req, res, matchObject) => {
     try {
+        //console.log("inside GSPD");
         const thisMonth = req.query.month;
         const thisYear = req.query.year;
         const user_id = req.query.user_id;
@@ -447,50 +449,60 @@ const getSCFRpopupData = async (req, res, matchObject) => {
             searchParams.call_flag = call_flag;
         }
 
+        // console.log(searchParams);
 
         //userid; 673eae4d604dc6a026a9cca4
-        var data = await Call.aggregate([
-            { $match: { user_id: new mongoose.Types.ObjectId("673eae4d604dc6a026a9cca4"), call_date: { $gt: gtDate, $lt: ltDate } } },
-            {
-                $project: {
-                    call_date: 1,
-                    call_flag: 1,
-                    short_flag: {
-                        $function: {
-                            body: getLetterFromFlag,
-                            args: ["$call_flag"],
-                            lang: "js"
-                        }
-                    },
-                    weekOfMonth: {
-                        $function: {
-                            body: getWeekOfMonth,
-                            args: ["$call_date"],
-                            lang: "js"
+        var data = await Call.find(searchParams)
+            .populate([
+                {
+                    path: 'contact_id',
+                    model: 'Contact',
+                    select: { '_id': 1, 'firstname': 1, 'lastname': 1 },
+                    populate: {
+                        path: 'branch_id',
+                        model: 'Branch',
+                        select: { '_id': 1, 'label': 1 },
+                        populate: {
+                            path: 'company_id',
+                            model: 'Company',
+                            select: { '_id': 1, 'label': 1 },
                         }
                     }
                 }
-            }
-            ,
-            {
-                $group: {
-                    _id: {
-                        weekOfMonth: "$weekOfMonth",
-                        flag: "$short_flag"
-                    },
-                    count: { $sum: 1 }
+                ,
+                {
+                    path: 'user_id',
+                    model: 'User',
+                    select: { 'username': 1, 'short_username': 1 },
                 }
-            },
-            {
-                $sort: {
-                    "_id.weekOfMonth": 1,
-                    "_id.flag": 1
-                }
-            }
-        ]);
 
-        //console.log(data);
-        res.json(data);
+            ]).exec();
+
+       // console.log(`elments in data: ${data.length}`);
+        //now we need to populate/filter on weekOfMonth
+        //from req.query   weekNumber
+
+        filteredData = [];
+        //iterate data
+        data.forEach(datum => {
+            //console.log(datum);
+            //console.log(datum.call_date);
+            var thisDate = new Date(datum.call_date);
+            var thisWeekNumber = getWeekOfMonth(thisDate);
+            //console.log(`week number: ${thisWeekNumber}`);
+            if (thisWeekNumber == weekNumber) {
+                //console.log("adding to filtered");
+                filteredData.push(datum);
+            }else{
+                //console.log("#### NOT ADDED ####");
+            }
+        });
+
+
+
+
+        //console.log(filteredData);
+        res.json(filteredData);
     } catch (err) {
         console.error(err);
         return res.status(404).json({ "message": 'something went sideways' });
