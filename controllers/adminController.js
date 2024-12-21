@@ -37,7 +37,7 @@ const getBlankMonthlySummaryData = async () => {
 
 // #region MSR
 const getMonthlySummeryReport = async (req, res) => {
-    //console.log("MSR");
+    // console.log("MSR");
     try {
         if (!req?.query?.month) return res.status(400).json({ 'message': 'month required.' }); //months are 0-11
         if (!req?.query?.year) return res.status(400).json({ 'message': 'year required.' });
@@ -291,11 +291,14 @@ const getPopupTableData = async (req, res) => {
     //return;
     try {
 
+        //console.log(req.query);
+
         //let's parse params, shall we
         if (!req?.query?.user_id) return res.status(400).json({ 'message': 'user_id required' });
         if (!req?.query?.callFlag) return res.status(400).json({ 'message': 'callFlag required' });
         if (!req?.query?.month) return res.status(400).json({ 'message': 'month required' });
         if (!req?.query?.year) return res.status(400).json({ 'message': 'year required' });
+        if (!req?.query?.weekNumber) return res.status(400).json({ 'message': 'weekNumber required' });
 
         const thisMonth = req.query.month;
         const thisYear = req.query.year;
@@ -318,12 +321,12 @@ const getPopupTableData = async (req, res) => {
 
 
 
-        if (!req?.query?.weekNumber) {
-            //console.log("no week number");
+        if (req.query.weekNumber === 'null') {
+            console.log("MSR Popup");
             getMSRPopupData(req, res);
         } else {
             ///we have a week of month, this is from the other SCFR
-            //console.log(`WEEK NUMBER FOUND: ${req.query.weekNumber}`);
+            console.log("SCFR popup");
             getSCFRpopupData(req, res);
         }
 
