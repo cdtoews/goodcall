@@ -19,7 +19,7 @@ function stripPWFromUser(thisUser) {
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find();
+        const users = await User.find().sort({username: 1});
         if (!users) return res.status(204).json({ 'message': 'No users found' });
 
         stripPWFromUsers(users);
