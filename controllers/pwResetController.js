@@ -23,7 +23,7 @@ const handlePwResetRequest = async (req, res) => {
     try {
         //does user exist    
         if (!req?.body?.user) {
-            console.log(`password reset requested for NOBODY`)
+            console.warn(`password reset requested for NOBODY`)
         } else {
             const hoursLimit = 1;
             const user = await User.findOne({ username: req.body.user }).exec();
@@ -39,14 +39,11 @@ const handlePwResetRequest = async (req, res) => {
                 user.temp_password = hashedPwd;
                 user.pw_reset_timeout = futureDate;
                 const result = await user.save();
-                //user.save;
-                //console.log(`password reset requested for ${req.body.user}`);
-                //console.log(user);
                 const duration_text = `${hoursLimit} hour(s)`;  //hoursLimit.toString() + " hours";
                 sendEmail.sendPwResetEmail(tempPw, req.body.user, duration_text);
                 return res.status(200).json({ "message": 'SUCCESS' });
             } else {
-                console.log(`BAD password reset requested for ${req.body.user}`);
+                console.warn(`BAD password reset requested for ${req.body.user}`);
             }
 
 
@@ -63,7 +60,7 @@ const handlePwResetLink = async (req, res) => {
     try {
         // console.log(req.body);
         if (!req?.body?.username) {
-            console.log('WEIRD pwResetLink came in with no ID');
+            console.warn('WEIRD pwResetLink came in with no ID');
             return res.status(400).json({ "message": 'no username' });
         }
 
@@ -77,14 +74,14 @@ const handlePwResetLink = async (req, res) => {
             return res.status(400).json({ 'message': 'Inactive User' });
         }
         if (!user) {
-            console.log(`BAD password reset requested for ${req.body.user}`);
+            console.warn(`BAD password reset requested for ${req.body.user}`);
             return res.status(400).json({ "message": 'huh?' });
         }
 
         //CHECK DATE
         const resetDate = new Date(user.pw_reset_timeout);
         if (!resetDate) {
-            console.log(`Expired password reset requested for ${req.body.user}`);
+            console.warn(`Expired password reset requested for ${req.body.user}`);
             return res.status(409).json({ "message": 'Expired Reset Request' });
         }
 
@@ -93,14 +90,14 @@ const handlePwResetLink = async (req, res) => {
         //console.log(`resetDate: ${resetDate}, nowDate: ${dateNow.toString()}`);
         if (dateNow > resetDate) {
             //console.log("is after");
-            console.log(`OLD password reset requested for ${req.body.user}`);
+            console.warn(`OLD password reset requested for ${req.body.user}`);
             return res.status(409).json({ "message": 'Old Reset Request' });
         } 
 
         //CHECK TEMP PW
         const match = await bcrypt.compare(tempPw, user.temp_password);
         if(!match){
-            console.log(`Password Request with bad tempPW for: ${req.body.user}`);
+            console.warn(`Password Request with bad tempPW for: ${req.body.user}`);
             return res.status(400).json({ "message": 'huh?' });
         }
 

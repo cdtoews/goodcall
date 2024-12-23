@@ -322,11 +322,11 @@ const getPopupTableData = async (req, res) => {
 
 
         if (req.query.weekNumber === 'null') {
-            console.log("MSR Popup");
+            console.info("MSR Popup");
             getMSRPopupData(req, res);
         } else {
             ///we have a week of month, this is from the other SCFR
-            console.log("SCFR popup");
+            console.info("SCFR popup");
             getSCFRpopupData(req, res);
         }
 
@@ -481,23 +481,16 @@ const getSCFRpopupData = async (req, res, matchObject) => {
 
             ]).exec();
 
-       // console.log(`elments in data: ${data.length}`);
-        //now we need to populate/filter on weekOfMonth
-        //from req.query   weekNumber
 
         filteredData = [];
         //iterate data
         data.forEach(datum => {
-            //console.log(datum);
-            //console.log(datum.call_date);
+
             var thisDate = new Date(datum.call_date);
             var thisWeekNumber = getWeekOfMonth(thisDate);
-            //console.log(`week number: ${thisWeekNumber}`);
+
             if (thisWeekNumber == weekNumber) {
-                //console.log("adding to filtered");
                 filteredData.push(datum);
-            }else{
-                //console.log("#### NOT ADDED ####");
             }
         });
 

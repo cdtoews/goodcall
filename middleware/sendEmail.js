@@ -40,7 +40,7 @@ function getContact(contact_id) {
 
         const contact = Contact.findOne({ _id: contact_id }).lean().exec();
         if (!contact) {
-            console.log("no contact found for contact._id: " + contact_id);
+            console.warn("no contact found for contact._id: " + contact_id);
             return null;
         }
         return contact;
@@ -96,21 +96,16 @@ const sendCallEntryEmail = async (req) => {
 
     }, function (error, success) {
         if (error) {
-            console.log("ERROR on New Call Email");
-            console.log(error);
+            console.error("ERROR on New Call Email");
+            console.error(error);
         } else {
-            console.log("New Call Email sent successfully");
+            console.info("New Call Email sent successfully");
             // console.log(success);
         }
     });
 
 
 }
-
-const testFunc = () => {
-    console.log("inside testfunc");
-}
-
 
 //#region PW Reset
 const sendPwResetEmail = (tempPw, username, duration_text) => {
@@ -137,10 +132,10 @@ const sendPwResetEmail = (tempPw, username, duration_text) => {
 
     }, function (error, success) {
         if (error) {
-            console.log("ERROR on PW Reset email");
-            console.log(error);
+            console.error("ERROR on PW Reset email");
+            console.error(error);
         } else {
-            console.log("PW Reset Email sent successfully");
+            console.info("PW Reset Email sent successfully");
             // console.log(success);
         }
     });
@@ -170,10 +165,10 @@ const sendNewUserEmail = (tempPw, username, duration_text) => {
 
     }, function (error, success) {
         if (error) {
-            console.log("ERROR on New User Reset email");
-            console.log(error);
+            console.error("ERROR on New User Reset email");
+            console.error(error);
         } else {
-            console.log("New User Email sent successfully");
+            console.info("New User Email sent successfully");
             // console.log(success);
         }
     });
@@ -191,6 +186,5 @@ module.exports = {
     sendCallEntryEmail,
     sendMonthlyEmail,
     sendPwResetEmail,
-    sendNewUserEmail,
-    testFunc
+    sendNewUserEmail
 };

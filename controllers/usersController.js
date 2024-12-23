@@ -208,7 +208,7 @@ const createNewUser = async (req, res) => {
         // console.log("newuser");
         // console.log(newUser);
         const result = newUser.save();
-        console.log(`New User Created: ${username}`);
+        console.info(`New User Created: ${username}`);
 
 
         const duration_text = "1 day";
@@ -216,7 +216,7 @@ const createNewUser = async (req, res) => {
         sendEmail.sendNewUserEmail(tempPw, username, duration_text);
 
 
-        console.log(`New User Email Sent for ${username}`);
+        console.info(`New User Email Sent for ${username}`);
         //return res.status(200).json({ "message": 'SUCCESS' });
         res.status(201).json({ 'success': `New user ${username} created!` });
     } catch (err) {

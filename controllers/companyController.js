@@ -84,7 +84,7 @@ const getCompanyName = async (companyId) => {
     try {
         const company = await Company.findOne({ _id: companyId }).exec();
         if (!company) {
-            console.log("unable to get company for id: " + companyId);
+            console.error("unable to get company for id: " + companyId);
             return null;
         }
         return company.label;

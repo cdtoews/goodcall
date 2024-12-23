@@ -95,7 +95,7 @@ const getBranchObject = async (branchId) => {
     try {
         const branch = await Branch.findOne({ _id: branchId }).exec();
         if (!branch) {
-            console.log("unable to get branch object for id: " + branchId)
+            console.warn("unable to get branch object for id: " + branchId)
             return null;
         }
         return branch;

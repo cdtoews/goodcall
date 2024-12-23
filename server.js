@@ -59,7 +59,7 @@ app.use('/admin', require('./routes/api/admin'));
 
 
 app.all('*', (req, res) => {
-    console.log('########################     inside app all      ##############################');
+    console.info('########################     inside app all      ##############################');
     res.status(404);
     if (req.accepts('html')) {
         res.sendFile(path.join(__dirname, 'views', '404.html'));
@@ -73,6 +73,6 @@ app.all('*', (req, res) => {
 app.use(errorHandler);
 
 mongoose.connection.once('open', () => {
-    console.log('Connected to MongoDB');
-    app.listen(PORT, '::', () => console.log(`Server running on port ${PORT}`));
+    console.info('Connected to MongoDB');
+    app.listen(PORT, '::', () => console.info(`Server running on port ${PORT}`));
 });

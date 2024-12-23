@@ -314,7 +314,7 @@ const getCall = async (req, res) => {
             const myUserId = thisUser._id;
             callUserId = call._doc.user_id;
             if (JSON.stringify(myUserId) !== JSON.stringify(callUserId)) {
-                console.log('attempted to retreive another person\'s call');
+                console.warn('attempted to retreive another person\'s call');
                 return res.status(401).json({ "message": 'You are not authorized to see that entry' });
             }
         }
