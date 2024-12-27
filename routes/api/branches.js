@@ -7,11 +7,10 @@ const verifyRoles = require('../../middleware/verifyRoles');
 router.route('/')
     .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), branchController.createNewBranch)
     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), branchController.updateBranch);
-    
 
 router.route('/:id')
     .get(branchController.getBranch);
-    
+
 router.route('/activate')
     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), branchController.activateBranch);
 
@@ -21,5 +20,7 @@ router.route('/deactivate')
 router.route('/bycompany/:id')
     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), branchController.getBranchesByCompany);
 
+router.route('/allbycompany/:id')
+    .get(verifyRoles(ROLES_LIST.Admin), branchController.getAllBranchesByCompany)
 
 module.exports = router;

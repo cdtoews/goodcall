@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const logger = require('../middleware/logger');
 
 const connectDB = async () => {
     try {
@@ -7,7 +8,7 @@ const connectDB = async () => {
             useNewUrlParser: true
         });
     } catch (err) {
-        console.error(err);
+        logger.error(err);
     }
 }
 

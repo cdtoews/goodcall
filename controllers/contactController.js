@@ -46,7 +46,7 @@ const updateContact = async (req, res) => {
         if (req.body?.email) contact.email = req.body.email;
         if (req.body?.phone) contact.phone = req.body.phone;
         if (req.body?.notes) contact.notes = req.body.notes;
-        if (req.body?.active) contact.active = req.body.active;
+        contact.active = req.body.active;
         const result = await contact.save();
         res.json(result);
     } catch (err) {
@@ -112,6 +112,25 @@ const getContactByBranch = async (req, res) => {
 
 }
 
+
+const getAllContactByBranch = async (req, res) => {
+    try {
+
+        if (!req?.params?.id) return res.status(400).json({ 'message': 'Branch ID required.' });
+        // console.log(req.roles);
+        console.log(req.params.id);
+        const contacts = await Contact.find({ branch_id: req.params.id }).sort({ firstname: 1 });
+        if (!contacts) return res.status(204).json({ 'message': 'No contacts found' });
+        console.log(contacts);
+        res.json(contacts);
+    } catch (err) {
+        console.error(err);
+    }
+
+
+
+}
+
 //TOTEST:
 const getContact = async (req, res) => {
     try {
@@ -134,5 +153,6 @@ module.exports = {
     deactivateContact,
     activateContact,
     getContactByBranch,
+    getAllContactByBranch,
     getContact
 }

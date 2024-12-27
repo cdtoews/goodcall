@@ -6,12 +6,16 @@ const verifyRoles = require('../../middleware/verifyRoles');
 
 router.route('/')
     .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.createNewContact)
-    .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.updateContact);
+    .put(verifyRoles(ROLES_LIST.Admin), contactController.updateContact);
 
 
 //TODO   TOTEST
 router.route('/bybranch/:id')
     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.getContactByBranch);
+
+router.route('/allbybranch/:id')
+    .get(verifyRoles(ROLES_LIST.Admin), contactController.getAllContactByBranch);
+
 
 router.route('/:id')
     .get(contactController.getContact);

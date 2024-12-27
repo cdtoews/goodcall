@@ -1,4 +1,5 @@
 require('dotenv').config();
+const logger = require('../middleware/logger');
 const Call = require('../model/Call');
 const User = require('../model/User');
 const Contact = require('../model/Contact');
@@ -65,7 +66,7 @@ const createNewCall = async (req, res) => {
         if (req.body?.call_date) newCall.call_date = req.body.call_date;
 
         const result = newCall.save();
-
+        logger.debug('new call created');
         res.status(201).json(newCall);
         sendEmail.sendCallEntryEmail(req);
     } catch (err) {
@@ -145,7 +146,7 @@ const getMyCalls = async (req, res) => {
 
 
 
-
+        logger.debug('fetched mycalls');
 
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         //console.log(calls);
@@ -190,10 +191,10 @@ const getAllCalls = async (req, res) => {
 
 
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
-        //console.log(calls);
+        logger.debug('fetched allcalls');
         res.json(calls);
     } catch (err) {
-        console.error(err);
+        logger.error(err, "failed fetching allcalls");
         return res.status(404).json({ "message": 'aomething went sideways, in getAllCalls' });
     }
 
@@ -225,7 +226,7 @@ const getCallByBranch = async (req, res) => {
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         res.json(calls);
     } catch (err) {
-        console.error(err);
+        logger.error(err, "failed getting calls by branch");
         return res.status(404).json({ "message": 'aomething went sideways, in getCallByBranch' });
     }
 
@@ -255,7 +256,10 @@ const getAllCallByBranch = async (req, res) => {
             }
         }
 
-        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+        if (!calls) {
+            logger.debug("fetched zero calls by branch");
+            return res.status(204).json({ 'message': 'No calls found' });
+        }
         res.json(calls);
     } catch (err) {
         console.error(err);

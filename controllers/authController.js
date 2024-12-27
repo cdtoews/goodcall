@@ -1,4 +1,5 @@
 require('dotenv').config();
+const logger = require('../middleware/logger');
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -7,11 +8,15 @@ const handleLogin = async (req, res) => {
     try {
         const cookies = req.cookies;
         const { user, pwd } = req.body;
-        if (!user || !pwd) return res.status(400).json({ 'message': 'Username and password are required.' });
+        if (!user || !pwd){
+            logger.warn(`auth request made without full creds user=${user}`);
+            return res.status(400).json({ 'message': 'Username and password are required.' });
+        } 
         
         const foundUser = await User.findOne({ username: user.toLowerCase() }).exec();
         if (!foundUser) return res.sendStatus(401); //Unauthorized 
         if (!foundUser.active) {
+            logger.warn(`auth request for inactive user, user=${user}`)
             return res.status(400).json({ 'message': 'Inactive User' });
         }
 
@@ -51,7 +56,7 @@ const handleLogin = async (req, res) => {
             const result = await foundUser.save();
             // console.log(result);
             // console.log(roles);
-
+            logger.info(`auth request successful login user=${user}`);
             // Creates Secure Cookie with refresh token
             res.cookie('jwt', newRefreshToken, { httpOnly: true, secure: cookieSecurity, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 });
 
@@ -59,10 +64,11 @@ const handleLogin = async (req, res) => {
             res.json({ roles, accessToken });
 
         } else {
+            logger.warn(`auth request bad password user=${user}`);
             res.sendStatus(401);
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err,"auth request")
         res.sendStatus(401);
     }
 }

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
+const logger = require('../middleware/logger');
 // const connectDB = require('./config/dbConn');
 const Call = require('../model/Call');
 const User = require('../model/User');
@@ -10,7 +11,7 @@ const { ObjectId } = mongoose.Types;
 // #region Utilities
 const getBlankMonthlySummaryData = async () => {
     var table = [];
-
+    logger.trace("getBlankMonthlySummaryData");
     //get all flags:
     const flags = await Flag.find().sort({ label: 1 });
     const users = await User.find({ active: true }).sort({ username: 1 });
@@ -29,15 +30,13 @@ const getBlankMonthlySummaryData = async () => {
         table.push(thisRow);
 
     });
-
+    logger.trace(table);
     return table;
-    //console.log(table);
-
 }
 
 // #region MSR
 const getMonthlySummeryReport = async (req, res) => {
-    // console.log("MSR");
+    logger.trace("getMonthlySummeryReport");
     try {
         if (!req?.query?.month) return res.status(400).json({ 'message': 'month required.' }); //months are 0-11
         if (!req?.query?.year) return res.status(400).json({ 'message': 'year required.' });
@@ -103,8 +102,7 @@ const getMonthlySummeryReport = async (req, res) => {
 
         // });
 
-
-        //console.log(data);
+        logger.trace(data);
         var table = await getBlankMonthlySummaryData();
 
         data.forEach(function (eachCall) {
@@ -124,23 +122,11 @@ const getMonthlySummeryReport = async (req, res) => {
 
         });
 
-        // //followup with making "totals" row
-        // //anything with 0, set to -1 for table formatting
-        // for (const [key, value] of Object.entries(totalRow)) {
-        //     if (value < 1){
-        //         totalRow[key] = -1;
-        //     }
-
-        //   }
-        // table.push(totalRow);
-
-        // console.log(JSON.stringify(data));
-        //   console.log(table);
-
+        logger.trace(JSON.stringify(table));
         res.json(table);
 
     } catch (err) {
-        console.error(err);
+        logger.error(err, "trouble getting monthy summary report");
         res.status(500).json({ 'message': 'trouble getting monthly summary report' });
     }
 
@@ -169,9 +155,9 @@ const getBlankSFCRSummaryData = async () => {
         table.push(thisRow);
 
     };
-    //console.log(table);
+    logger.trace(JSON.stringify(table));
     return table;
-    //console.log(table);
+
 
 }
 
@@ -189,7 +175,7 @@ function getLetterFromFlag(flagName) {
 
 const getSalesCallFreqReport = async (req, res) => {
     try {
-
+        logger.trace("getSalesCallFreqReport");
         if (!req?.query?.month) return res.status(400).json({ 'message': 'month required.' }); //months are 0-11
         if (!req?.query?.year) return res.status(400).json({ 'message': 'year required.' });
         if (!req?.query?.user_id) return res.status(400).json({ 'message': 'user_id required.' });
@@ -255,7 +241,7 @@ const getSalesCallFreqReport = async (req, res) => {
             }
         ]);
 
-        //console.log(data);
+        logger.trace(JSON.stringify(data));
 
         //now get empty table data
         var table = await getBlankSFCRSummaryData();
@@ -274,14 +260,14 @@ const getSalesCallFreqReport = async (req, res) => {
 
         });
 
-        // console.log(table);
 
+        logger.trace(JSON.stringify(table));
         res.json(table);
 
 
 
     } catch (err) {
-        console.error(err);
+        logger.error(err, "touble getting SCFR");
         res.status(500).json({ 'message': 'trouble getting SCFR' });
     }
 }
@@ -304,45 +290,24 @@ const getPopupTableData = async (req, res) => {
         const thisYear = req.query.year;
         const user_id = req.query.user_id;
 
-        //monthly summary report
-        //going to set to last month (nov)
-
-        // let gtDate = new Date();
-        // // ltDate.setMonth(10); //months are 0 to 11
-        // // ltDate.setDate(1);//day of month
-        // gtDate.setFullYear(thisYear, thisMonth, 1);
-        // gtDate.setHours(0);
-        // gtDate.setMinutes(0);
-        // //console.log(gtDate);
-
-        // let ltDate = new Date();
-        // ltDate.setTime(gtDate.getTime());
-        // ltDate.setMonth(ltDate.getMonth() + 1);
-
-
-
         if (req.query.weekNumber === 'null') {
-            console.info("MSR Popup");
+            logger.debug("MSR Popup");
             getMSRPopupData(req, res);
         } else {
             ///we have a week of month, this is from the other SCFR
-            console.info("SCFR popup");
+            logger.debug("SCFR popup");
             getSCFRpopupData(req, res);
         }
 
     } catch (err) {
-        console.error(err);
+        logger.error(err,"trouble getting admin report popup");
         return res.status(404).json({ "message": 'something went sideways, in' });
     }
 
 }
 
 const getMSRPopupData = async (req, res) => {
-    //     header A (Architect)
-    //    user_id: 673eae4d604dc6a026a9cca4
-    //    Month: 11
-    //  year: 2024
-    // /admin/pop/?month=11&year=2024&user_id=673eae4d604dc6a026a9cca4&callFlag=A%20%28Architect%29
+    
     try {
 
         const thisMonth = req.query.month;
@@ -377,11 +342,6 @@ const getMSRPopupData = async (req, res) => {
             searchParams.call_flag = call_flag;
         }
 
-
-        // console.log("popup search")
-        // console.log(searchParams);
-
-
         const calls = await Call.find(searchParams)
             .populate([{
                 path: 'contact_id',
@@ -410,9 +370,10 @@ const getMSRPopupData = async (req, res) => {
 
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         // console.log(calls);
+        logger.trace(calls);
         res.json(calls);
     } catch (err) {
-        console.error(err);
+        logger.error(err,"trouble in getMSRPopupData");
         return res.status(404).json({ "message": 'something went sideways, in' });
     }
 }
@@ -481,6 +442,10 @@ const getSCFRpopupData = async (req, res, matchObject) => {
 
             ]).exec();
 
+        if (!data) {
+            logger.trace("SFCR popup no calls found");
+            return res.status(204).json({ 'message': 'No calls found' });
+        }
 
         filteredData = [];
         //iterate data
@@ -497,10 +462,10 @@ const getSCFRpopupData = async (req, res, matchObject) => {
 
 
 
-        //console.log(filteredData);
+        logger.trace(JSON.stringify(filteredData));
         res.json(filteredData);
     } catch (err) {
-        console.error(err);
+        logger.error(err,"problem in getSCFRpopupData")
         return res.status(404).json({ "message": 'something went sideways' });
     }
 
