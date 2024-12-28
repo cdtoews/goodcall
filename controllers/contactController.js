@@ -118,10 +118,10 @@ const getAllContactByBranch = async (req, res) => {
 
         if (!req?.params?.id) return res.status(400).json({ 'message': 'Branch ID required.' });
         // console.log(req.roles);
-        console.log(req.params.id);
+        //console.log(req.params.id);
         const contacts = await Contact.find({ branch_id: req.params.id }).sort({ firstname: 1 });
         if (!contacts) return res.status(204).json({ 'message': 'No contacts found' });
-        console.log(contacts);
+        //console.log(contacts);
         res.json(contacts);
     } catch (err) {
         console.error(err);
