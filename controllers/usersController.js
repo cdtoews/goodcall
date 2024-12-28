@@ -210,7 +210,6 @@ const createNewUser = async (req, res) => {
         const result = newUser.save();
         console.info(`New User Created: ${username}`);
 
-
         const duration_text = "1 day";
 
         sendEmail.sendNewUserEmail(tempPw, username, duration_text);
