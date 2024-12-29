@@ -1,4 +1,5 @@
 const CallType = require('../model/CallType');
+const logger = require('../middleware/logger');
 
 const getAllCallTypes = async (req, res) => {
     try {

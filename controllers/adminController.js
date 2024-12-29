@@ -30,7 +30,7 @@ const getBlankMonthlySummaryData = async () => {
         table.push(thisRow);
 
     });
-    logger.trace(table);
+    //logger.trace(table);
     return table;
 }
 
@@ -102,7 +102,7 @@ const getMonthlySummeryReport = async (req, res) => {
 
         // });
 
-        logger.trace(data);
+        //logger.trace(data);
         var table = await getBlankMonthlySummaryData();
 
         data.forEach(function (eachCall) {
@@ -122,7 +122,7 @@ const getMonthlySummeryReport = async (req, res) => {
 
         });
 
-        logger.trace(JSON.stringify(table));
+        //logger.trace(JSON.stringify(table));
         res.json(table);
 
     } catch (err) {
@@ -155,7 +155,7 @@ const getBlankSFCRSummaryData = async () => {
         table.push(thisRow);
 
     };
-    logger.trace(JSON.stringify(table));
+    //logger.trace(JSON.stringify(table));
     return table;
 
 
@@ -241,7 +241,7 @@ const getSalesCallFreqReport = async (req, res) => {
             }
         ]);
 
-        logger.trace(JSON.stringify(data));
+        //logger.trace(JSON.stringify(data));
 
         //now get empty table data
         var table = await getBlankSFCRSummaryData();
@@ -261,7 +261,7 @@ const getSalesCallFreqReport = async (req, res) => {
         });
 
 
-        logger.trace(JSON.stringify(table));
+        //logger.trace(JSON.stringify(table));
         res.json(table);
 
 
@@ -276,7 +276,7 @@ const getSalesCallFreqReport = async (req, res) => {
 const getPopupTableData = async (req, res) => {
     //return;
     try {
-
+        logger.trace("getPopupTableData");
         //console.log(req.query);
 
         //let's parse params, shall we
@@ -300,16 +300,16 @@ const getPopupTableData = async (req, res) => {
         }
 
     } catch (err) {
-        logger.error(err,"trouble getting admin report popup");
+        logger.error(err, "trouble getting admin report popup");
         return res.status(404).json({ "message": 'something went sideways, in' });
     }
 
 }
 
 const getMSRPopupData = async (req, res) => {
-    
-    try {
 
+    try {
+        logger.trace("getMSRPopupData");
         const thisMonth = req.query.month;
         const thisYear = req.query.year;
         const user_id = req.query.user_id;
@@ -370,10 +370,10 @@ const getMSRPopupData = async (req, res) => {
 
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
         // console.log(calls);
-        logger.trace(calls);
+        //logger.trace(calls);
         res.json(calls);
     } catch (err) {
-        logger.error(err,"trouble in getMSRPopupData");
+        logger.error(err, "trouble in getMSRPopupData");
         return res.status(404).json({ "message": 'something went sideways, in' });
     }
 }
@@ -462,10 +462,10 @@ const getSCFRpopupData = async (req, res, matchObject) => {
 
 
 
-        logger.trace(JSON.stringify(filteredData));
+        //logger.trace(JSON.stringify(filteredData));
         res.json(filteredData);
     } catch (err) {
-        logger.error(err,"problem in getSCFRpopupData")
+        logger.error(err, "problem in getSCFRpopupData")
         return res.status(404).json({ "message": 'something went sideways' });
     }
 
