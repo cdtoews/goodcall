@@ -1,6 +1,7 @@
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
 const sendEmail = require('../middleware/sendEmail');
+const logger = require('../middleware/logger');
 
 function stripPWFromUsers(users) {
     for (const thisUser of users) {
@@ -19,21 +20,23 @@ function stripPWFromUser(thisUser) {
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().sort({username: 1});
+        logger.trace("getAllUsers");
+        const users = await User.find().sort({ username: 1 });
         if (!users) return res.status(204).json({ 'message': 'No users found' });
 
         stripPWFromUsers(users);
         //console.log(users);
         res.json(users);
     } catch (err) {
-        console.error(err);
+        logger.error(err, "getAllUsers");
     }
 
 }
 
 const getUserList = async (req, res) => {
     try {
-        const users = await User.find({active: true});
+        logger.trace("getUserList");
+        const users = await User.find({ active: true });
         if (!users) return res.status(204).json({ 'message': 'No users found' });
 
         for (const thisUser of users) {
@@ -46,10 +49,10 @@ const getUserList = async (req, res) => {
             thisUser.receive_emails = null;
             thisUser.pw_reset_timeout = null;
         }
-        
+
         res.json(users);
     } catch (err) {
-        console.error(err);
+        logger.error(err, "getUserList");
     }
 
 }
@@ -69,6 +72,7 @@ const deleteUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     try {
+        logger.trace("getUser");
         if (!req?.params?.id) return res.status(400).json({ "message": 'User ID required' });
         const user = await User.findOne({ _id: req.params.id }).exec();
         stripPWFromUser(user);
@@ -77,7 +81,7 @@ const getUser = async (req, res) => {
         }
         res.json(user);
     } catch (err) {
-        console.error(err);
+        logger.error(err, "getUser");
         return res.status(400).json({ 'message': 'huh?' });
     }
 
@@ -86,7 +90,7 @@ const getUser = async (req, res) => {
 const getMyUser = async (req, res) => {
 
     try {
-        //console.log(req);
+        logger.trace("getMyUser");
         const thisUser = await User.findOne({ username: req.user }).lean().exec();
         // const myUserId = thisUser._id;
 
@@ -98,7 +102,7 @@ const getMyUser = async (req, res) => {
         // res.end(JSON.stringify(thisUser));
         res.json(thisUser);
     } catch (err) {
-        console.error(err);
+        logger.error(err, "getMyUser");
         return res.status(400).json({ 'message': 'huh?' });
     }
 
@@ -108,7 +112,7 @@ const getMyUser = async (req, res) => {
 const updateUser = async (req, res) => {
     //console.log(req.body);
     try {
-
+        logger.trace("updateUser");
         if (!req?.body?.id) {
             return res.status(400).json({ 'message': 'ID parameter is required.' });
         }
@@ -135,7 +139,7 @@ const updateUser = async (req, res) => {
         //res.json(result);
         res.status(200).json({ 'success': `User Updated` });
     } catch (err) {
-        console.error(err);
+        logger.error(err, "updateUser");
         return res.status(400).json({ 'message': 'huh?' });
     }
 }
@@ -156,17 +160,10 @@ function generatePass() {
     return pass;
 }
 
-
 const createNewUser = async (req, res) => {
-    //console.log("cnu");
-    // user: user,
-    // admin: isAdmin,
-    // getEmail: getEmail
-
-    // console.log("====req.body====");
-    // console.log(req.body);
-    // console.log("====req.body END====");
     try {
+        logger.trace("createNewUser");
+
         var { username } = req.body;
         if (!username) return res.status(400).json({ 'message': 'Username required.' });
         username = username.toLowerCase();
@@ -174,10 +171,8 @@ const createNewUser = async (req, res) => {
         const duplicate = await User.findOne({ username: username }).exec();
         if (duplicate) return res.sendStatus(409); //Conflict 
 
-
         const isAdmin = req?.body?.admin ? req.body.admin : false;
         const getEmail = req?.body?.getEmail ? req.body.getEmail : false;
-
 
         const now = new Date();
         const futureDate = new Date(now.getTime() + 24 * 60 * 60 * 1000);
@@ -193,33 +188,24 @@ const createNewUser = async (req, res) => {
         newUser.pw_reset_timeout = futureDate;
         newUser.receive_emails = getEmail;
 
-
-
-
         if (isAdmin) {
             //console.log("IS ADMIN");
             // newUser.roles.User = 2001;
             // newUser.roles.Admin = 5150
             newUser.set('roles.Admin', 5150);
             newUser.set('roles.user', 2001);
-
-
         }
-        // console.log("newuser");
-        // console.log(newUser);
+
         const result = newUser.save();
-        console.info(`New User Created: ${username}`);
+        logger.info(`New User Created: ${username}`);
 
         const duration_text = "1 day";
-
         sendEmail.sendNewUserEmail(tempPw, username, duration_text);
+        logger.info(`New User Email Sent for ${username}`);
 
-
-        console.info(`New User Email Sent for ${username}`);
-        //return res.status(200).json({ "message": 'SUCCESS' });
         res.status(201).json({ 'success': `New user ${username} created!` });
     } catch (err) {
-        console.error(err);
+        logger.error(err, "createNewUser");
         res.status(500).json({ 'message': err.message });
     }
 }

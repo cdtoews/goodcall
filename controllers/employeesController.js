@@ -1,9 +1,16 @@
 const Employee = require('../model/Employee');
+const logger = require('../middleware/logger');
 
 const getAllEmployees = async (req, res) => {
-    const employees = await Employee.find();
-    if (!employees) return res.status(204).json({ 'message': 'No employees found.' });
-    res.json(employees);
+    try{
+        logger.trace("getAllEmployees");
+        const employees = await Employee.find();
+        if (!employees) return res.status(204).json({ 'message': 'No employees found.' });
+        res.json(employees);
+    }catch(err){
+        logger.error(err,"getAllEmployees");
+    }
+    
 }
 
 const createNewEmployee = async (req, res) => {

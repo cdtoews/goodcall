@@ -1,9 +1,11 @@
 require('dotenv').config();
 const User = require('../model/User');
+const logger = require('../middleware/logger');
 
 const handleLogout = async (req, res) => {
     // TODO: On client, also delete the accessToken
     try {
+        logger.trace("handleLogout");
         const cookies = req.cookies;
         if (!cookies?.jwt) return res.sendStatus(204); //No content
         const refreshToken = cookies.jwt;
@@ -12,6 +14,7 @@ const handleLogout = async (req, res) => {
         const foundUser = await User.findOne({ refreshToken }).exec();
         const cookieSecurity = process.env.COOKIE_SECURE || true;
         if (!foundUser) {
+            logger.warn(`handleLogout for unknown user req: ${JSON.stringify(req)}`);
             res.clearCookie('jwt', { httpOnly: true, secure: cookieSecurity, sameSite: 'None' });
             return res.sendStatus(204);
         }
@@ -21,14 +24,14 @@ const handleLogout = async (req, res) => {
         //foundUser.refreshToken = foundUser.refreshToken.filter(rt  => rt !== refreshToken);
         foundUser.refreshToken = [];
         const result = await foundUser.save();
-        //console.log(result);
+
 
 
 
         res.clearCookie('jwt', { httpOnly: true, secure: cookieSecurity, sameSite: 'None' });
         res.sendStatus(204);
     } catch (err) {
-        console.error(err);
+        logger.error(err, "handleLogout");
     }
 }
 

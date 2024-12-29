@@ -11,11 +11,11 @@ router.route('/')
 router.route('/:id')
     .get(branchController.getBranch);
 
-router.route('/activate')
-    .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), branchController.activateBranch);
+// router.route('/activate')
+//     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), branchController.activateBranch);
 
-router.route('/deactivate')
-    .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), branchController.deactivateBranch);
+// router.route('/deactivate')
+//     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), branchController.deactivateBranch);
 
 router.route('/bycompany/:id')
     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), branchController.getBranchesByCompany);

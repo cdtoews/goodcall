@@ -1,19 +1,21 @@
 const CallType = require('../model/CallType');
 
 const getAllCallTypes = async (req, res) => {
-    try{
-    const flags = await CallType.find().sort({label: 1});
-    if (!flags) return res.status(204).json({ 'message': 'No CallType found.' });
-    res.json(flags);
-    }catch(err){
-        console.error(err);
-        
+    try {
+        logger.trace("getAllCallTypes");
+        const flags = await CallType.find().sort({ label: 1 });
+        if (!flags) return res.status(204).json({ 'message': 'No CallType found.' });
+        res.json(flags);
+    } catch (err) {
+        logger.error(err, "getAllCallTypes");
+
     }
 }
 
 
 const createNewCallType = async (req, res) => {
-    if (!req?.body?.label ) {
+    logger.trace("createNewCallType");
+    if (!req?.body?.label) {
         return res.status(400).json({ 'message': 'label is required' });
     }
 
@@ -29,7 +31,7 @@ const createNewCallType = async (req, res) => {
 }
 
 
-module.exports = { 
+module.exports = {
     getAllCallTypes,
     createNewCallType
 };

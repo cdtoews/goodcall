@@ -47,7 +47,7 @@ async function parseQueryOnlyMine(req) {
 //#region New Call
 const createNewCall = async (req, res) => {
     try {
-        //console.log(req.body);
+        logger.trace("createNewCall");
         //we have req.user, which is the username
         const thisUser = await getUserObject(req, res);
 
@@ -70,7 +70,7 @@ const createNewCall = async (req, res) => {
         res.status(201).json(newCall);
         sendEmail.sendCallEntryEmail(req);
     } catch (err) {
-        console.error(err);
+        logger.error(err,"createNewCall");
         return res.status(400).json({ 'message': 'Something wonky happened creating call' });
     }
 }
@@ -111,7 +111,7 @@ const deleteCall = async (req, res) => {
 //#region MyCalls
 const getMyCalls = async (req, res) => {
     try {
-        // console.log('inside gmc');
+        logger.trace("getMyCalls");
         const searchParams = await parseQueryOnlyMine(req);
         // console.log(searchParams);
         //console.log("get my calls");
@@ -152,7 +152,7 @@ const getMyCalls = async (req, res) => {
         //console.log(calls);
         res.json(calls);
     } catch (err) {
-        console.error(err);
+        logger.error(err,"getMyCalls");
         return res.status(404).json({ "message": 'aomething went sideways, in getmycalls' });
     }
 
@@ -160,6 +160,9 @@ const getMyCalls = async (req, res) => {
 
 const getAllCalls = async (req, res) => {
     try {
+        logger.trace("getAllCalls");
+
+
         const searchParams = await parseQuery(req);
 
 
@@ -194,7 +197,7 @@ const getAllCalls = async (req, res) => {
         logger.debug('fetched allcalls');
         res.json(calls);
     } catch (err) {
-        logger.error(err, "failed fetching allcalls");
+        logger.error(err,"getAllCalls");
         return res.status(404).json({ "message": 'aomething went sideways, in getAllCalls' });
     }
 
@@ -204,7 +207,7 @@ const getCallByBranch = async (req, res) => {
     if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
     //need to get user_id of user
     try {
-
+        logger.trace("getCallByBranch");
         const searchParams = await parseQueryOnlyMine(req);
         searchParams.branch_id = req.params.id;
         //searchParams.active=true;
@@ -237,7 +240,7 @@ const getAllCallByBranch = async (req, res) => {
     if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
     //need to get user_id of user
     try {
-
+        logger.trace("getAllCallByBranch");
         const searchParams = await parseQuery(req);
         searchParams.branch_id = req.params.id;
         //searchParams.active=true;
@@ -262,7 +265,7 @@ const getAllCallByBranch = async (req, res) => {
         }
         res.json(calls);
     } catch (err) {
-        console.error(err);
+        logger.error(err,"getAllCallByBranch");
         return res.status(404).json({ "message": 'aomething went sideways, in getCallByBranch' });
     }
 

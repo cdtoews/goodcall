@@ -20,12 +20,12 @@ router.route('/allbybranch/:id')
 router.route('/:id')
     .get(contactController.getContact);
 
-//TOTEST
-router.route('/activate')
-    .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.activateContact);
+// //TOTEST
+// router.route('/activate')
+//     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.activateContact);
 
-//TOTEST
-router.route('/deactivate')
-    .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.deactivateContact);
+// //TOTEST
+// router.route('/deactivate')
+//     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), contactController.deactivateContact);
 
 module.exports = router;

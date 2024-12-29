@@ -1,8 +1,10 @@
 const User = require('../model/User');
 const bcrypt = require('bcrypt');
+const logger = require('../middleware/logger');
 
 const handleNewUser = async (req, res) => {
     try {
+        logger.trace("handleNewUser");
         const { user, pwd } = req.body;
         if (!user || !pwd) return res.status(400).json({ 'message': 'Username and password are required.' });
 
@@ -27,7 +29,7 @@ const handleNewUser = async (req, res) => {
             res.status(500).json({ 'message': err.message });
         }
     } catch (err) {
-        console.error(err);
+        logger.error(err, "handleNewUser");
     }
 }
 

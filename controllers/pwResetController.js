@@ -21,6 +21,7 @@ function generatePass() {
 
 const handlePwResetRequest = async (req, res) => {
     try {
+        logger.trace("handlePwResetRequest");
         //does user exist    
         if (!req?.body?.user) {
             logger.warn(`password reset requested for NOBODY`)
@@ -42,6 +43,7 @@ const handlePwResetRequest = async (req, res) => {
                 const result = await user.save();
                 const duration_text = `${hoursLimit} hour(s)`;  //hoursLimit.toString() + " hours";
                 sendEmail.sendPwResetEmail(tempPw, req.body.user, duration_text);
+                logger.info(`pw reset successful user: ${req.body.user}`);
                 return res.status(200).json({ "message": 'SUCCESS' });
             } else {
                 logger.warn(`BAD password reset requested for ${req.body.user}`);
@@ -55,7 +57,7 @@ const handlePwResetRequest = async (req, res) => {
 
 const handlePwResetLink = async (req, res) => {
     try {
-        // console.log(req.body);
+        logger.trace("handlePwResetLink");
         if (!req?.body?.username) {
             logger.warn('WEIRD pwResetLink came in with no ID');
             return res.status(400).json({ "message": 'no username' });
@@ -68,7 +70,7 @@ const handlePwResetLink = async (req, res) => {
         //console.log(req.body);
         const user = await User.findOne({ username: username }).exec();
         if (!user.active) {
-            logger.warn("password reset link for inactive user");
+            logger.warn(`password reset link for inactive user: ${req.body.user}`);
             return res.status(400).json({ 'message': 'Inactive User' });
         }
         if (!user) {

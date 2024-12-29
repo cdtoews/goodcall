@@ -1,9 +1,11 @@
 require('dotenv').config();
 const User = require('../model/User');
 const jwt = require('jsonwebtoken');
+const logger = require('../middleware/logger');
 
 const handleRefreshToken = async (req, res) => {
     try {
+        logger.trace("handleRefreshToken");
         const cookies = req.cookies;
         if (!cookies?.jwt) return res.sendStatus(401);
         const refreshToken = cookies.jwt;
@@ -23,10 +25,12 @@ const handleRefreshToken = async (req, res) => {
                     const hackedUser = await User.findOne({ username: decoded.username }).exec();
                     hackedUser.refreshToken = [];
                     const result = await hackedUser.save();
-                    // console.log(result);
+                    logger.warn(`BAD REFRESH TOKEN, REQ: ${JSON.stringify(req)}`);
                 }
             )
             return res.sendStatus(403); //Forbidden 
+        } else {
+            logger.debug(`found user: ${foundUser.username}`)
         }
 
         const newRefreshTokenArray = foundUser.refreshToken.filter(rt => rt !== refreshToken);
@@ -69,10 +73,11 @@ const handleRefreshToken = async (req, res) => {
 
 
                 res.json({ roles, accessToken })
+                logger.debug(`refresh token successfully granted user: ${foundUser.username}`);
             }
         );
     } catch (err) {
-        console.error(err);
+        logger.error(err, "handleRefreshToken");
     }
 }
 
