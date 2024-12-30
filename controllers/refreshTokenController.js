@@ -25,7 +25,7 @@ const handleRefreshToken = async (req, res) => {
                     const hackedUser = await User.findOne({ username: decoded.username }).exec();
                     hackedUser.refreshToken = [];
                     const result = await hackedUser.save();
-                    logger.warn(`BAD REFRESH TOKEN, REQ: ${JSON.stringify(req)}`);
+                    logger.warn(`BAD REFRESH TOKEN, REQ: ${req}`);
                 }
             )
             return res.sendStatus(403); //Forbidden 
