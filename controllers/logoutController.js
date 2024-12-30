@@ -14,7 +14,7 @@ const handleLogout = async (req, res) => {
         const foundUser = await User.findOne({ refreshToken }).exec();
         const cookieSecurity = process.env.COOKIE_SECURE || true;
         if (!foundUser) {
-            logger.warn(`handleLogout for unknown user req: ${JSON.stringify(req)}`);
+            logger.warn(`handleLogout for unknown user req: ${req}`);
             res.clearCookie('jwt', { httpOnly: true, secure: cookieSecurity, sameSite: 'None' });
             return res.sendStatus(204);
         }
