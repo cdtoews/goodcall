@@ -6,7 +6,7 @@ const verifyRoles = require('../../middleware/verifyRoles');
 
 router.route('/')
     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), companyController.getAllCompanies)
-    .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), companyController.createNewCompany)
+    .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), companyController.createNewCompany)
     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), companyController.updateCompany);
 
 
