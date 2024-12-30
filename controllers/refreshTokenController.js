@@ -7,7 +7,10 @@ const handleRefreshToken = async (req, res) => {
     try {
         logger.trace("handleRefreshToken");
         const cookies = req.cookies;
-        if (!cookies?.jwt) return res.sendStatus(401);
+        if (!cookies?.jwt){
+            logger.warn(`handleRefreshToken, bad refresh token in request `)
+            return res.sendStatus(401);
+        } 
         const refreshToken = cookies.jwt;
         const cookieSecurity = process.env.COOKIE_SECURE || true;
 
@@ -44,7 +47,10 @@ const handleRefreshToken = async (req, res) => {
                     foundUser.refreshToken = [...newRefreshTokenArray];
                     const result = await foundUser.save();
                 }
-                if (err || foundUser.username !== decoded.username) return res.sendStatus(403);
+                if (err || foundUser.username !== decoded.username){
+                    logger.warn(`handleRefreshToken, cannot verify token for ${foundUser.username}`);
+                    return res.sendStatus(403);
+                } 
 
                 //refresh token still good
                 const roles = Object.values(foundUser.roles);

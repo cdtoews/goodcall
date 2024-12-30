@@ -161,7 +161,7 @@ const getMyCalls = async (req, res) => {
 const getAllCalls = async (req, res) => {
     try {
         logger.trace("getAllCalls");
-
+        logger.trace(JSON.stringify(req));
 
         const searchParams = await parseQuery(req);
 
