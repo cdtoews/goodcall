@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { format } = require('date-fns');
 const { v4: uuid } = require('uuid');
+const jwt = require('jsonwebtoken');
 
 const fs = require('fs');
 const fsPromises = require('fs').promises;
@@ -21,9 +22,30 @@ const logEvents = async (message, logName) => {
     }
 }
 
+const getUsername = (req) => {
+    try {
+        if (!req?.headers?.authorization) {
+            //console.debug("no auth header");
+            return "";
+        }
+        const thisToken = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(thisToken, process.env.ACCESS_TOKEN_SECRET);
+        return decoded.UserInfo.username
+    } catch (err) {
+        console.error(err);
+        return "";
+    }
+}
+
 const logger = (req, res, next) => {
     logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, 'reqLog.txt');
-    console.log(`method=${req.method} path=${req.path} remote_ip=${req.ip} params=${JSON.stringify(req.params)} query=${JSON.stringify(req.query)} env=${process.env.MY_ENV}`);
+    let userInfo = "";
+    if(req.method !== "OPTIONS"){
+        const username = getUsername(req);
+        userInfo = ` user=${username}`;
+    }
+    const username = getUsername(req);
+    console.log(`method=${req.method} path=${req.path} ${userInfo} remote_ip=${req.ip} params=${JSON.stringify(req.params)} query=${JSON.stringify(req.query)} env=${process.env.MY_ENV}`);
     next();
 }
 
