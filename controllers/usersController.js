@@ -100,7 +100,7 @@ const getMyUser = async (req, res) => {
         stripPWFromUser(thisUser);
 
         // res.end(JSON.stringify(thisUser));
-        res.json(thisUser);
+        res.status(200).json(thisUser);
     } catch (err) {
         logger.error(err, "getMyUser");
         return res.status(400).json({ 'message': 'huh?' });

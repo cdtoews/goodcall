@@ -46,6 +46,7 @@ async function parseQueryOnlyMine(req) {
 
 //#region New Call
 const createNewCall = async (req, res) => {
+    var msg = 'started';
     try {
         logger.trace("createNewCall");
         //we have req.user, which is the username
@@ -55,8 +56,7 @@ const createNewCall = async (req, res) => {
             !req?.body?.call_type) {
             return res.status(400).json({ 'message': 'Required fields: contact_id,  call_type ' });
         }
-
-
+        msg = 'made it to 59';
         const newCall = new Call();
         newCall.user_id = thisUser._id;
         newCall.contact_id = req.body.contact_id;
@@ -64,47 +64,48 @@ const createNewCall = async (req, res) => {
         newCall.call_type = req.body.call_type;
         newCall.call_flag = req.body.call_flag;
         if (req.body?.call_date) newCall.call_date = req.body.call_date;
-
+        msg = 'made it to 67';
         const result = newCall.save();
+        msg = 'made it to 69';
         logger.debug('new call created');
         res.status(201).json(newCall);
         sendEmail.sendCallEntryEmail(req);
     } catch (err) {
         logger.error(err,"createNewCall");
-        return res.status(400).json({ 'message': 'Something wonky happened creating call' });
+        return res.status(400).json({ 'message': msg });
     }
 }
 
 
 //#region Update
-const updateCall = async (req, res) => {
-    if (!req?.body?.id) {
-        return res.status(400).json({ 'message': 'ID parameter is required.' });
-    }
+// const updateCall = async (req, res) => {
+//     if (!req?.body?.id) {
+//         return res.status(400).json({ 'message': 'ID parameter is required.' });
+//     }
 
-    const call = await Call.findOne({ _id: req.body.id }).exec();
-    if (!call) {
-        return res.status(204).json({ "message": `No call matches ID ${req.body.id}.` });
-    }
-    if (req.body?.contact_id) call.contact_id = req.body.contact_id;
-    if (req.body?.user_id) call.user_id = req.body.user_id;
-    if (req.body?.call_date) call.call_date = req.body.call_date;
-    if (req.body?.notes) call.notes = req.body.notes;
-    if (req.body?.call_type) call.call_type = req.body.call_type;
-    if (req.body?.call_flag) call.call_flag = req.body.call_flag;
-    const result = await call.save();
-    res.json(result);
-}
+//     const call = await Call.findOne({ _id: req.body.id }).exec();
+//     if (!call) {
+//         return res.status(204).json({ "message": `No call matches ID ${req.body.id}.` });
+//     }
+//     if (req.body?.contact_id) call.contact_id = req.body.contact_id;
+//     if (req.body?.user_id) call.user_id = req.body.user_id;
+//     if (req.body?.call_date) call.call_date = req.body.call_date;
+//     if (req.body?.notes) call.notes = req.body.notes;
+//     if (req.body?.call_type) call.call_type = req.body.call_type;
+//     if (req.body?.call_flag) call.call_flag = req.body.call_flag;
+//     const result = await call.save();
+//     res.json(result);
+// }
 
-const deleteCall = async (req, res) => {
-    if (!req?.body?.id) return res.status(400).json({ 'message': 'call ID required.' });
-    const call = await Call.findOne({ _id: req.body.id }).exec();
-    if (!call) {
-        return res.status(204).json({ "message": `No call matches ID ${req.body.id}.` });
-    }
-    const result = await call.deleteOne({ _id: req.body.id });
-    res.json(result);
-}
+// const deleteCall = async (req, res) => {
+//     if (!req?.body?.id) return res.status(400).json({ 'message': 'call ID required.' });
+//     const call = await Call.findOne({ _id: req.body.id }).exec();
+//     if (!call) {
+//         return res.status(204).json({ "message": `No call matches ID ${req.body.id}.` });
+//     }
+//     const result = await call.deleteOne({ _id: req.body.id });
+//     res.json(result);
+// }
 
 
 
@@ -203,106 +204,106 @@ const getAllCalls = async (req, res) => {
 
 }
 
-const getCallByBranch = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-    //need to get user_id of user
-    try {
-        logger.trace("getCallByBranch");
-        const searchParams = await parseQueryOnlyMine(req);
-        searchParams.branch_id = req.params.id;
-        //searchParams.active=true;
+// const getCallByBranch = async (req, res) => {
+//     if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+//     //need to get user_id of user
+//     try {
+//         logger.trace("getCallByBranch");
+//         const searchParams = await parseQueryOnlyMine(req);
+//         searchParams.branch_id = req.params.id;
+//         //searchParams.active=true;
 
-        const contacts = await Contact.find({ branch_id: req.params.id, active: true });
-        const calls = [];
-        //iterate contacts sand get calls for each
-        for (const contact of contacts) {
-            const thisParams = {};
-            thisParams.contact_id = contact._doc._id;
+//         const contacts = await Contact.find({ branch_id: req.params.id, active: true });
+//         const calls = [];
+//         //iterate contacts sand get calls for each
+//         for (const contact of contacts) {
+//             const thisParams = {};
+//             thisParams.contact_id = contact._doc._id;
 
-            var thisCalls = await Call.find({ ...searchParams, ...thisParams }).lean().exec();
-            if (thisCalls) {
-                //calls.concat(thisCalls);
-                Array.prototype.push.apply(calls, thisCalls);
-            }
-        }
+//             var thisCalls = await Call.find({ ...searchParams, ...thisParams }).lean().exec();
+//             if (thisCalls) {
+//                 //calls.concat(thisCalls);
+//                 Array.prototype.push.apply(calls, thisCalls);
+//             }
+//         }
 
-        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
-        res.json(calls);
-    } catch (err) {
-        logger.error(err, "failed getting calls by branch");
-        return res.status(404).json({ "message": 'aomething went sideways, in getCallByBranch' });
-    }
-
-
-}
-
-const getAllCallByBranch = async (req, res) => {
-    if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-    //need to get user_id of user
-    try {
-        logger.trace("getAllCallByBranch");
-        const searchParams = await parseQuery(req);
-        searchParams.branch_id = req.params.id;
-        //searchParams.active=true;
-
-        const contacts = await Contact.find({ branch_id: req.params.id, active: true });
-        const calls = [];
-        //iterate contacts sand get calls for each
-        for (const contact of contacts) {
-            const thisParams = {};
-            thisParams.contact_id = contact._doc._id;
-
-            var thisCalls = await Call.find({ ...searchParams, ...thisParams }).lean().exec();
-            if (thisCalls) {
-                //calls.concat(thisCalls);
-                Array.prototype.push.apply(calls, thisCalls);
-            }
-        }
-
-        if (!calls) {
-            logger.debug("fetched zero calls by branch");
-            return res.status(204).json({ 'message': 'No calls found' });
-        }
-        res.json(calls);
-    } catch (err) {
-        logger.error(err,"getAllCallByBranch");
-        return res.status(404).json({ "message": 'aomething went sideways, in getCallByBranch' });
-    }
+//         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+//         res.json(calls);
+//     } catch (err) {
+//         logger.error(err, "failed getting calls by branch");
+//         return res.status(404).json({ "message": 'aomething went sideways, in getCallByBranch' });
+//     }
 
 
-}
+// }
 
-const getCallByContact = async (req, res) => {
+// const getAllCallByBranch = async (req, res) => {
+//     if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+//     //need to get user_id of user
+//     try {
+//         logger.trace("getAllCallByBranch");
+//         const searchParams = await parseQuery(req);
+//         searchParams.branch_id = req.params.id;
+//         //searchParams.active=true;
 
-    try {
-        if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-        var searchParams = await parseQueryOnlyMine(req);
-        searchParams.contact_id = req.params.id;
-        const calls = await Call.find(searchParams);
-        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
-        res.json(calls);
-    } catch (err) {
-        console.error(err);
-        return res.status(404).json({ "message": 'aomething went sideways, in getCallByContact' });
-    }
+//         const contacts = await Contact.find({ branch_id: req.params.id, active: true });
+//         const calls = [];
+//         //iterate contacts sand get calls for each
+//         for (const contact of contacts) {
+//             const thisParams = {};
+//             thisParams.contact_id = contact._doc._id;
 
-}
+//             var thisCalls = await Call.find({ ...searchParams, ...thisParams }).lean().exec();
+//             if (thisCalls) {
+//                 //calls.concat(thisCalls);
+//                 Array.prototype.push.apply(calls, thisCalls);
+//             }
+//         }
 
-const getAllCallByContact = async (req, res) => {
+//         if (!calls) {
+//             logger.debug("fetched zero calls by branch");
+//             return res.status(204).json({ 'message': 'No calls found' });
+//         }
+//         res.json(calls);
+//     } catch (err) {
+//         logger.error(err,"getAllCallByBranch");
+//         return res.status(404).json({ "message": 'aomething went sideways, in getCallByBranch' });
+//     }
 
-    try {
-        if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
-        var searchParams = await parseQuery(req);
-        searchParams.contact_id = req.params.id;
-        const calls = await Call.find(searchParams);
-        if (!calls) return res.status(204).json({ 'message': 'No calls found' });
-        res.json(calls);
-    } catch (err) {
-        console.error(err);
-        return res.status(404).json({ "message": 'aomething went sideways, in getCallByContact' });
-    }
 
-}
+// }
+
+// const getCallByContact = async (req, res) => {
+
+//     try {
+//         if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+//         var searchParams = await parseQueryOnlyMine(req);
+//         searchParams.contact_id = req.params.id;
+//         const calls = await Call.find(searchParams);
+//         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+//         res.json(calls);
+//     } catch (err) {
+//         console.error(err);
+//         return res.status(404).json({ "message": 'aomething went sideways, in getCallByContact' });
+//     }
+
+// }
+
+// const getAllCallByContact = async (req, res) => {
+
+//     try {
+//         if (!req?.params?.id) return res.status(400).json({ 'message': 'contact ID required.' });
+//         var searchParams = await parseQuery(req);
+//         searchParams.contact_id = req.params.id;
+//         const calls = await Call.find(searchParams);
+//         if (!calls) return res.status(204).json({ 'message': 'No calls found' });
+//         res.json(calls);
+//     } catch (err) {
+//         console.error(err);
+//         return res.status(404).json({ "message": 'aomething went sideways, in getCallByContact' });
+//     }
+
+// }
 
 //TOTEST:
 const getCall = async (req, res) => {
@@ -334,13 +335,13 @@ const getCall = async (req, res) => {
 
 module.exports = {
     createNewCall,
-    updateCall,
-    deleteCall,
-    getCallByContact,
+   // updateCall,
+   // deleteCall,
+   // getCallByContact,
     getCall,
     getMyCalls,
-    getCallByBranch,
-    getAllCalls,
-    getAllCallByContact,
-    getAllCallByBranch
+   // getCallByBranch,
+    getAllCalls
+   // getAllCallByContact,
+   // getAllCallByBranch
 }
