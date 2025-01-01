@@ -178,7 +178,7 @@ const sendNewUserEmail = (tempPw, username, duration_text) => {
 
 const sendMonthlyEmail = (req, res, next) => {
     logEvents(`${req.method}\t${req.headers.origin}\t${req.url}`, 'reqLog.txt');
-    console.log(`method=${req.method} path=${req.path} remote_ip=${req.ip}`);
+    //console.log(`method=${req.method} path=${req.path} remote_ip=${req.ip}`);
     next();
 }
 

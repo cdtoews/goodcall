@@ -66,7 +66,7 @@ describe('Call Controller', () => {
             .post('/calls')
             .set(headers)
             .send(newCall);
-        console.log(`response: ${JSON.stringify(response.body)}`);
+        //console.log(`response: ${JSON.stringify(response.body)}`);
 
         expect(response.statusCode).toEqual(201);
         expect(response.body.caller).toBe(newCall.caller);

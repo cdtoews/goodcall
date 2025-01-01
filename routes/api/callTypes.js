@@ -5,8 +5,8 @@ const ROLES_LIST = require('../../config/roles_list');
 const verifyRoles = require('../../middleware/verifyRoles');
 
 router.route('/')
-    .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callTypeController.getAllCallTypes)
-    .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), callTypeController.createNewCallType);
+    .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callTypeController.getAllCallTypes);
+    //.post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), callTypeController.createNewCallType);
    
     
 

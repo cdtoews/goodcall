@@ -75,7 +75,7 @@ describe('User Controller', () => {
             const response = await request(app).get('/users/myinfo')
             .set( headers );
 
-            console.log(`response: ${JSON.stringify(response.body)}`);
+            //console.log(`response: ${JSON.stringify(response.body)}`);
 
             expect(response.status).toBe(200);
             expect(response.body.username).toBe(user.username);
