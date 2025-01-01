@@ -32,8 +32,8 @@ describe('Call Controller', () => {
         const contact1 = await Contact.create({ firstname: 'Jimmy', branch_id: branch1._id });
         const contact2 = await Contact.create({ firstname: 'Charlie', branch_id: branch2._id });
 
-        const user1 = { username: 'john@doe.com', password: 'SomeLongPasswordHash'};
-        const user2 = { username: 'jane@doe.com', password: 'SomeLongPasswordHash'};
+        const user1 = await User.create({ username: 'john@doe.com', password: 'SomeLongPasswordHash'});
+        const user2 = await User.create({ username: 'jane@doe.com', password: 'SomeLongPasswordHash'});
         
         const note1 = 'This is a note';
         const callDate = new Date('2023-11-10T09:12:13Z');
@@ -47,8 +47,16 @@ describe('Call Controller', () => {
             notes: note1,
         };
 
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'user': user1.username,
+            'Authorization': 'Basic cGstWjBPU3pMdkljT0kyVUl2RGhkVEdWVmZSU1NlaUdTdG5jZXF3VUU3bjBBaDo='
+          };
+
         const response = await request(app)
             .post('/calls')
+            .set(headers)
             .send(newCall);
         console.log(`response: ${JSON.stringify(response.body)}`);
 

@@ -2,6 +2,7 @@ const User = require('../model/User');
 const bcrypt = require('bcrypt');
 const sendEmail = require('../middleware/sendEmail');
 const logger = require('../middleware/logger');
+const { get } = require('mongoose');
 
 function stripPWFromUsers(users) {
     for (const thisUser of users) {
@@ -87,11 +88,48 @@ const getUser = async (req, res) => {
 
 }
 
+async function getUserObject(req) {
+    try {
+        //let's look at req.user first
+        let userName = null;
+        if (req.user) {
+            userName = req.user;
+        } else {
+            //let's look through raw headers for an email
+            for (let i = 0; i < req.rawHeaders.length; i += 2) {
+                const key = req.rawHeaders[i];
+                const value = req.rawHeaders[i + 1];
+                //console.log(`${key}: ${value}`);
+                if (key === "user") {
+                    userName = value;
+                    break;
+                }
+            }
+
+        }
+
+        if (!userName) {
+            logger.warn("getUserObject: No username found in request.");
+            return null;
+        }
+
+        //we have req.user, which is the username
+        thisUser = await User.findOne({ username: userName }).lean().exec();
+       
+        return thisUser;
+    } catch (err) {
+        logger.error(err, "getUserObject");
+        return null;
+    }
+
+}
+
 const getMyUser = async (req, res) => {
 
     try {
         logger.trace("getMyUser");
-        const thisUser = await User.findOne({ username: req.user }).lean().exec();
+        const thisUser = await getUserObject(req);
+        //const thisUser = await User.findOne({ username: req.user }).lean().exec();
         // const myUserId = thisUser._id;
 
         if (!thisUser) {
@@ -216,5 +254,6 @@ module.exports = {
     getUser,
     getMyUser,
     updateUser,
-    createNewUser
+    createNewUser,
+    getUserObject
 }

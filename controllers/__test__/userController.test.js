@@ -28,8 +28,8 @@ describe('User Controller', () => {
     });
 
     it('should get all users with passwords stripped', async () => {
-        const user1 = new User({  username: 'john@example.com', password: 'password123' });
-        const user2 = new User({  username: 'jane@example.com', password: 'password123' });
+        const user1 = new User({ username: 'john@example.com', password: 'password123' });
+        const user2 = new User({ username: 'jane@example.com', password: 'password123' });
         await user1.save();
         await user2.save();
 
@@ -41,23 +41,23 @@ describe('User Controller', () => {
         expect(response.body[1].name).toBe(user2.name);
         expect(response.body[0].password).toBe("");
         expect(response.body[1].password).toBe("");
-        
+
     });
 
 
-        it('should get user list', async () => {
-            const user1 = new User({ username: 'john@example.com', password: 'password123' });
-            const user2 = new User({ username: 'jane@example.com', password: 'password123' });
-            await user1.save();
-            await user2.save();
+    it('should get user list', async () => {
+        const user1 = new User({ username: 'john@example.com', password: 'password123' });
+        const user2 = new User({ username: 'jane@example.com', password: 'password123' });
+        await user1.save();
+        await user2.save();
 
-            const response = await request(app).get('/users/list');
+        const response = await request(app).get('/users/list');
 
-            expect(response.status).toBe(200);
-            expect(response.body.length).toBe(2);
-            expect(response.body[0].username).toBe(user1.username);
-            expect(response.body[1].username).toBe(user2.username);
-        });
+        expect(response.status).toBe(200);
+        expect(response.body.length).toBe(2);
+        expect(response.body[0].username).toBe(user1.username);
+        expect(response.body[1].username).toBe(user2.username);
+    });
 
 
         //TODO:  Fix this test
@@ -82,38 +82,38 @@ describe('User Controller', () => {
             expect(response.body.password).toBe("");
         });
 
-        it('should get a user by id', async () => {
-            const user = new User({ username: 'john@example.com', password: 'password123' });
-            await user.save();
+    it('should get a user by id', async () => {
+        const user = new User({ username: 'john@example.com', password: 'password123' });
+        await user.save();
 
-            const response = await request(app).get(`/users/${user._id}`);
+        const response = await request(app).get(`/users/${user._id}`);
 
-            expect(response.status).toBe(200);
-            expect(response.body.username).toBe(user.username);
-            expect(response.body.password).toBe("");
-            expect(response.body._id).toBe(user._id.toString());
-            expect(response.body.admin).toBe(false);
-            expect(response.body.short_username).toBe('john');
-            expect(response.body.receive_emails).toBe(false);
-            expect(response.body.active).toBe(true);
-        });
+        expect(response.status).toBe(200);
+        expect(response.body.username).toBe(user.username);
+        expect(response.body.password).toBe("");
+        expect(response.body._id).toBe(user._id.toString());
+        expect(response.body.admin).toBe(false);
+        expect(response.body.short_username).toBe('john');
+        expect(response.body.receive_emails).toBe(false);
+        expect(response.body.active).toBe(true);
+    });
 
 
-        it('should get a user by id who is admin', async () => {
-            const user = new User({ username: 'john@example.com', password: 'password123', roles: { Admin: 5150 }, receive_emails: true });
-            await user.save();
+    it('should get a user by id who is admin', async () => {
+        const user = new User({ username: 'john@example.com', password: 'password123', roles: { Admin: 5150 }, receive_emails: true });
+        await user.save();
 
-            const response = await request(app).get(`/users/${user._id}`);
+        const response = await request(app).get(`/users/${user._id}`);
 
-            expect(response.status).toBe(200);
-            expect(response.body.username).toBe(user.username);
-            expect(response.body.password).toBe("");
-            expect(response.body._id).toBe(user._id.toString());
-            expect(response.body.admin).toBe(true);
-            expect(response.body.short_username).toBe('john');
-            expect(response.body.receive_emails).toBe(true);
-            expect(response.body.active).toBe(true);
-        });
+        expect(response.status).toBe(200);
+        expect(response.body.username).toBe(user.username);
+        expect(response.body.password).toBe("");
+        expect(response.body._id).toBe(user._id.toString());
+        expect(response.body.admin).toBe(true);
+        expect(response.body.short_username).toBe('john');
+        expect(response.body.receive_emails).toBe(true);
+        expect(response.body.active).toBe(true);
+    });
 
 
 

@@ -9,13 +9,14 @@ const { th } = require('date-fns/locale');
 const sendEmail = require('../middleware/sendEmail');
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
+const { getUserObject } = require('./usersController');
 
-async function getUserObject(req) {
-    //we have req.user, which is the username
-    const thisUser = await User.findOne({ username: req.user }).lean().exec();
-    //return Promise.resolve(thisUser);
-    return thisUser;
-}
+// async function getUserObject(req) {
+//     //we have req.user, which is the username
+//     const thisUser = await User.findOne({ username: req.user }).lean().exec();
+//     //return Promise.resolve(thisUser);
+//     return thisUser;
+// }
 
 async function parseQuery(req) {
 
@@ -39,6 +40,7 @@ async function parseQuery(req) {
 
 async function parseQueryOnlyMine(req) {
     var result = await parseQuery(req);
+   // const thisUser = await getUserObject(req);
     const thisUser = await getUserObject(req);
     result.user_id = thisUser._id;
     return result;
