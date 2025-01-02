@@ -144,11 +144,6 @@ const getMyCalls = async (req, res) => {
             ]
             ).exec();
 
-
-        //  .populate([ 'contact_id', 'branch_id' ])
-
-
-
         logger.debug('fetched mycalls');
 
         if (!calls) return res.status(204).json({ 'message': 'No calls found' });

@@ -25,12 +25,14 @@ afterEach(async () => {
     await Call.deleteMany({});
     await Company.deleteMany({});
     await Branch.deleteMany({});
-    await Contact.deleteMany({});   
+    await Contact.deleteMany({});
     await User.deleteMany({});
 });
 
 describe('Call Controller', () => {
     it('should create a new call', async () => {
+        const sendEmail = jest.fn().mockResolvedValue(true);
+
         const company1 = await Company.create({ label: 'Company 1' });
         const company2 = await Company.create({ label: 'Company 1' });
 

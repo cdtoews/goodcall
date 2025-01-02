@@ -1,4 +1,5 @@
 require('dotenv').config();
+const logger = require('../middleware/logger');
 const Contact = require('../model/Contact');
 const companyController = require('../controllers/companyController');
 const branchController = require('../controllers/branchController');
@@ -69,7 +70,10 @@ const sendCallEntryEmail = async (req) => {
     var companyName = await companyController.getCompanyName(branch.company_id);
 
     const emailUsers = await getAllEmailUsers();
-    //console.log(users);
+    if(emailUsers.length === 0) {
+        logger.error("No email users found, sendCallEntryEmail");
+        return;
+    }
     const emails = emailUsers.map(user => user.username)
     const emailList = emails.join(", ");
     const fromEmail = process.env.EMAIL_FROM;
