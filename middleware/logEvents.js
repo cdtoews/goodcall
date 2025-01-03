@@ -42,10 +42,10 @@ const logger = (req, res, next) => {
     let userInfo = "";
     if(req.method !== "OPTIONS"){
         const username = getUsername(req);
-        userInfo = ` , user:${username}`;
+        userInfo = ` , user: ${username}`;
     }
     const username = getUsername(req);
-    console.log(`{ msg: {method:${req.method} , path:${req.path} , ${userInfo} , remote_ip:${req.ip} , params:${JSON.stringify(req.params)} , query:${JSON.stringify(req.query)} , env:${process.env.MY_ENV} } }`);
+    console.log(` {method: ${req.method} , path: ${req.path}  ${userInfo} , remote_ip: ${req.ip} , params: ${JSON.stringify(req.params)} , query: ${JSON.stringify(req.query)} , env: ${process.env.MY_ENV}  }`);
     next();
 }
 
