@@ -40,7 +40,7 @@ async function parseQuery(req) {
 
 async function parseQueryOnlyMine(req) {
     var result = await parseQuery(req);
-   // const thisUser = await getUserObject(req);
+    // const thisUser = await getUserObject(req);
     const thisUser = await getUserObject(req);
     result.user_id = thisUser._id;
     return result;
@@ -73,7 +73,7 @@ const createNewCall = async (req, res) => {
         res.status(201).json(newCall);
         sendEmail.sendCallEntryEmail(req);
     } catch (err) {
-        logger.error(err,"createNewCall");
+        logger.error(err, "createNewCall");
         return res.status(400).json({ 'message': msg });
     }
 }
@@ -120,6 +120,7 @@ const getMyCalls = async (req, res) => {
         //console.log("get my calls");
         //console.log(searchParams);
         const calls = await Call.find(searchParams)
+            .sort({ call_date: -1 })
             .populate([{
                 path: 'contact_id',
                 model: 'Contact',
@@ -150,7 +151,7 @@ const getMyCalls = async (req, res) => {
         //console.log(calls);
         res.json(calls);
     } catch (err) {
-        logger.error(err,"getMyCalls");
+        logger.error(err, "getMyCalls");
         return res.status(404).json({ "message": 'aomething went sideways, in getmycalls' });
     }
 
@@ -166,6 +167,7 @@ const getAllCalls = async (req, res) => {
 
 
         const calls = await Call.find(searchParams)
+            .sort({ call_date: -1 })
             .populate([{
                 path: 'contact_id',
                 model: 'Contact',
@@ -195,7 +197,7 @@ const getAllCalls = async (req, res) => {
         logger.debug('fetched allcalls');
         res.json(calls);
     } catch (err) {
-        logger.error(err,"getAllCalls");
+        logger.error(err, "getAllCalls");
         return res.status(404).json({ "message": 'aomething went sideways, in getAllCalls' });
     }
 
@@ -332,13 +334,13 @@ const getCall = async (req, res) => {
 
 module.exports = {
     createNewCall,
-   // updateCall,
-   // deleteCall,
-   // getCallByContact,
+    // updateCall,
+    // deleteCall,
+    // getCallByContact,
     getCall,
     getMyCalls,
-   // getCallByBranch,
+    // getCallByBranch,
     getAllCalls
-   // getAllCallByContact,
-   // getAllCallByBranch
+    // getAllCallByContact,
+    // getAllCallByBranch
 }
