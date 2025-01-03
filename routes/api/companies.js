@@ -16,10 +16,10 @@ router.route('/all')
 router.route('/:id')
     .get(companyController.getCompany);
 
-router.route('/activate')
-    .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), companyController.activateCompany);
+// router.route('/activate')
+//     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), companyController.activateCompany);
 
-router.route('/deactivate')
-    .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), companyController.deactivateCompany);
+// router.route('/deactivate')
+//     .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), companyController.deactivateCompany);
 
 module.exports = router;

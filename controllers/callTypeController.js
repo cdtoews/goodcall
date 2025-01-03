@@ -14,25 +14,24 @@ const getAllCallTypes = async (req, res) => {
 }
 
 
-const createNewCallType = async (req, res) => {
-    logger.trace("createNewCallType");
-    if (!req?.body?.label) {
-        return res.status(400).json({ 'message': 'label is required' });
-    }
+// const createNewCallType = async (req, res) => {
+//     logger.trace("createNewCallType");
+//     if (!req?.body?.label) {
+//         return res.status(400).json({ 'message': 'label is required' });
+//     }
 
-    try {
-        const result = await CallType.create({
-            label: req.body.label
-        });
+//     try {
+//         const result = await CallType.create({
+//             label: req.body.label
+//         });
 
-        res.status(201).json(result);
-    } catch (err) {
-        console.error(err);
-    }
-}
+//         res.status(201).json(result);
+//     } catch (err) {
+//         console.error(err);
+//     }
+// }
 
 
 module.exports = {
-    getAllCallTypes,
-    createNewCallType
+    getAllCallTypes
 };

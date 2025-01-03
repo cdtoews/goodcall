@@ -6,9 +6,9 @@ const verifyRoles = require('../../middleware/verifyRoles');
 
 router.route('/')
     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callController.getCall)
-    .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callController.createNewCall)
-    .delete(verifyRoles(ROLES_LIST.Admin), callController.deleteCall)
-    .put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), callController.updateCall);
+    .post(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callController.createNewCall);
+    //.delete(verifyRoles(ROLES_LIST.Admin), callController.deleteCall)
+    //.put(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor), callController.updateCall);
 
 //mine. this will get calls only for JUST YOU
 //   
@@ -24,21 +24,21 @@ calls between gt and lt (greater than & less than)
 router.route('/mine')
     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callController.getMyCalls);
 
-router.route('/mine/bycontact/:id')
-    .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callController.getCallByContact);
+// router.route('/mine/bycontact/:id')
+//     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callController.getCallByContact);
 
-router.route('/mine/bybranch/:id')
-    .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callController.getCallByBranch);
+// router.route('/mine/bybranch/:id')
+//     .get(verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor, ROLES_LIST.User), callController.getCallByBranch);
 
 //---------------------------- ALL -----------------------
 router.route('/all')
     .get(verifyRoles(ROLES_LIST.Admin), callController.getAllCalls);
 
-router.route('/all/bycontact/:id')
-    .get(verifyRoles(ROLES_LIST.Admin), callController.getAllCallByContact);
+// router.route('/all/bycontact/:id')
+//     .get(verifyRoles(ROLES_LIST.Admin), callController.getAllCallByContact);
 
-router.route('/all/bybranch/:id')
-    .get(verifyRoles(ROLES_LIST.Admin), callController.getAllCallByBranch);
+// router.route('/all/bybranch/:id')
+//     .get(verifyRoles(ROLES_LIST.Admin), callController.getAllCallByBranch);
 
 
 

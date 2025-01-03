@@ -45,8 +45,8 @@ callSchema.virtual("friendly_date").get(function () {
 callSchema.virtual("friendly_time").get(function () {
     const thisDate = this.call_date;
     const date = new Date(thisDate);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const hours = date.getUTCHours().toString().padStart(2, '0');
+    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
 
     return `${hours}:${minutes}`;
 })
