@@ -45,7 +45,7 @@ const logger = (req, res, next) => {
         userInfo = ` user:${username}`;
     }
     const username = getUsername(req);
-    console.log(`method=${req.method} path=${req.path} ${userInfo} remote_ip=${req.ip} params=${JSON.stringify(req.params)} query=${JSON.stringify(req.query)} env=${process.env.MY_ENV}`);
+    console.log(`method:${req.method} path:${req.path} ${userInfo} remote_ip:${req.ip} params:${JSON.stringify(req.params)} query:${JSON.stringify(req.query)} env:${process.env.MY_ENV}`);
     next();
 }
 
