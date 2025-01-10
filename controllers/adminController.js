@@ -301,7 +301,7 @@ const getPopupTableData = async (req, res) => {
 
     } catch (err) {
         logger.error(err, "trouble getting admin report popup");
-        return res.status(404).json({ "message": 'something went sideways, in' });
+        return res.status(500).json({ "message": 'something went sideways, in' });
     }
 
 }
@@ -374,7 +374,7 @@ const getMSRPopupData = async (req, res) => {
         res.json(calls);
     } catch (err) {
         logger.error(err, "trouble in getMSRPopupData");
-        return res.status(404).json({ "message": 'something went sideways, in' });
+        return res.status(500).json({ "message": 'MSR something went sideways' });
     }
 }
 
@@ -466,7 +466,7 @@ const getSCFRpopupData = async (req, res, matchObject) => {
         res.json(filteredData);
     } catch (err) {
         logger.error(err, "problem in getSCFRpopupData")
-        return res.status(404).json({ "message": 'something went sideways' });
+        return res.status(500).json({ "message": 'SCFR something went sideways' });
     }
 
 

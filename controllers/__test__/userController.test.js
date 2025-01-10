@@ -4,7 +4,7 @@ const request = require('supertest');
 const express = require('express');
 const userController = require('../usersController');
 const User = require('../../model/User');
-//const { sendEmail } = require('../../services/emailService');
+const sendEmail = require('../../middleware/sendEmail');
 
 // let mongoServer;
 const app = express();
@@ -27,8 +27,9 @@ describe('User Controller', () => {
     it('should create a new user', async () => {
         //sendEmail: jest.fn().mockResolvedValue(true);
         //jestConfig.mock('sendEmail', jest.fn().mockResolvedValue(true));
-        const sendEmail = jest.fn().mockResolvedValue(true);
+       // const sendEmail = jest.fn().mockResolvedValue(true);
         //const mockedSendEmail = jest.spyOn(utils, "getData").mockImplementation((name) => "Hello !!! " + name);
+        sendEmail.sendNewUserEmail = jest.fn().mockResolvedValue(true);
 
         const newUser = { username: 'john@example.com', password: 'LongHashedPassword' };
         const response = await request(app).post('/users/newuser').send(newUser);

@@ -19,6 +19,7 @@ function stripPWFromUser(thisUser) {
 
 }
 
+//#region GetAllUsers
 const getAllUsers = async (req, res) => {
     try {
         logger.trace("getAllUsers");
@@ -71,6 +72,7 @@ const getUserList = async (req, res) => {
 //     res.json(result);
 // }
 
+//#region GetUser
 const getUser = async (req, res) => {
     try {
         logger.trace("getUser");
@@ -124,6 +126,7 @@ async function getUserObject(req) {
 
 }
 
+//#region GetMyUser
 const getMyUser = async (req, res) => {
 
     try {
@@ -146,7 +149,8 @@ const getMyUser = async (req, res) => {
 
 }
 
-//TOTEST:
+
+//#region UpdateUser
 const updateUser = async (req, res) => {
     //console.log(req.body);
     try {
@@ -198,6 +202,8 @@ function generatePass() {
     return pass;
 }
 
+
+//#region CreateNewUser
 const createNewUser = async (req, res) => {
     try {
         logger.trace("createNewUser");
