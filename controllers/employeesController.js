@@ -24,6 +24,13 @@ const createNewEmployee = async (req, res) => {
             lastname: req.body.lastname
         });
 
+// *** VERIFY SAVE ***
+        if (!result || !result._id) {
+            logger.error("Employee save failed — no _id returned");
+            return res.status(500).json({ message: "Employee could not be saved" });
+        }
+
+
         res.status(201).json(result);
     } catch (err) {
         console.error(err);

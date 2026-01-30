@@ -22,6 +22,12 @@ const createNewContact = async (req, res) => {
             notes: req.body.notes
         });
 
+// *** VERIFY SAVE ***
+        if (!result || !result._id) {
+            logger.error("Contact save failed — no _id returned");
+            return res.status(500).json({ message: "Contact could not be saved" });
+        }
+
         res.status(201).json(result);
     } catch (err) {
         logger.error(err, "createNewContact");

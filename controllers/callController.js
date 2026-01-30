@@ -67,8 +67,16 @@ const createNewCall = async (req, res) => {
         newCall.call_flag = req.body.call_flag;
         if (req.body?.call_date) newCall.call_date = req.body.call_date;
         msg = 'made it to 67';
-        const result = newCall.save();
-        msg = 'made it to 69';
+        const result = await newCall.save();
+        
+        // *** VERIFY SAVE ***
+        if (!result || !result._id) {
+            logger.error("Call save failed — no _id returned");
+            return res.status(500).json({ message: "Call could not be saved" });
+        }
+
+
+ 
         logger.debug('new call created');
         res.status(201).json(newCall);
         sendEmail.sendCallEntryEmail(req);

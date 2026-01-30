@@ -44,6 +44,12 @@ const createNewCompany = async (req, res) => {
         const result = await Company.create({
             label: req.body.label
         });
+// *** VERIFY SAVE ***
+        if (!result || !result._id) {
+            logger.error("Company save failed — no _id returned");
+            return res.status(500).json({ message: "Company could not be saved" });
+        }
+
         logger.trace(result);
         res.status(201).json(result);
     } catch (err) {

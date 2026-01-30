@@ -47,6 +47,13 @@ const createNewBranch = async (req, res) => {
             company_id: req.body.company_id
         });
 
+        // *** VERIFY creatge ***
+        if (!result || !result._id) {
+            logger.error("Branch save failed — no _id returned");
+            return res.status(500).json({ message: "Branch could not be saved" });
+        }
+
+
         res.status(201).json(result);
     } catch (err) {
         logger.error(err,"createNewBranch");
