@@ -69,10 +69,25 @@ const createNewCall = async (req, res) => {
         msg = 'made it to 67';
         const result = await newCall.save();
         
+        //
+
         // *** VERIFY SAVE ***
         if (!result || !result._id) {
             logger.error("Call save failed — no _id returned");
             return res.status(500).json({ message: "Call could not be saved" });
+        }
+
+
+        //let's try retrieving the call
+        const savedCall = await Call.findOne({ _id: result._id });
+        if (!savedCall) {
+            logger.error("Call save failed — could not retrieve saved call");
+            return res.status(500).json({ message: "Call could not be saved" });
+        }else {
+            logger.debug("Call saved and verified:", savedCall);
+            var savedCallDetails = 'SAVED CALL DETAILS id: ' + savedCall._id + ', user_id: ' + savedCall.user_id + ', contact_id: ' + savedCall.contact_id + ', call_date: ' + savedCall.call_date + ', notes: ' + savedCall.notes + ', call_type: ' + savedCall.call_type + ', call_flag: ' + savedCall.call_flag;
+
+            logger.debug(savedCallDetails);
         }
 
 
