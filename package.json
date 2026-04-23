@@ -10,22 +10,22 @@
   "author": "Chris Toews, code stolen from: Dave Gray",
   "license": "ISC",
   "engines": {
-    "node": "20.18.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
-    "date-fns": "^2.23.0",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.0.11",
-    "pino": "^9.6.0",
-    "postmark": "^4.0.5",
-    "uuid": "^8.3.2"
+    "cors": "^2.8.6",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.5.0",
+    "pino": "^10.3.1",
+    "postmark": "^4.0.7",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.12"
+    "nodemon": "^3.1.14"
   }
 }

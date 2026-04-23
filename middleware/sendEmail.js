@@ -5,7 +5,11 @@ const branchController = require('../controllers/branchController');
 const User = require('../model/User');
 
 const postmark = require("postmark");
-const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
+let _client;
+function getClient() {
+    if (!_client) _client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
+    return _client;
+}
 
 function stripPWFromUsers(users) {
     for (const thisUser of users) {
@@ -75,7 +79,7 @@ const sendCallEntryEmail = async (req) => {
     const fromEmail = process.env.EMAIL_FROM;
 
 
-    client.sendEmailWithTemplate({
+    getClient().sendEmailWithTemplate({
         "TemplateModel": {
             "customer_name": companyName,
             "username": req.user,
@@ -115,7 +119,7 @@ const sendPwResetEmail = (tempPw, username, duration_text) => {
     const msgSubject = "Password Reset Request";
 
 
-    client.sendEmailWithTemplate({
+    getClient().sendEmailWithTemplate({
         "TemplateModel": {
             "username": username,
             "pw_reset_link": pw_reset_link,
@@ -150,7 +154,7 @@ const sendNewUserEmail = (tempPw, username, duration_text) => {
     const pw_reset_link = `${webAppURL}/pwreset/?user=${username}&pw=${tempPw}`;
     
 
-    client.sendEmailWithTemplate({
+    getClient().sendEmailWithTemplate({
         "TemplateModel": {
             "username": username,
             "pw_reset_link": pw_reset_link,

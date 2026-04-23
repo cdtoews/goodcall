@@ -58,7 +58,7 @@ app.use('/calltypes', require('./routes/api/callTypes'));
 app.use('/admin', require('./routes/api/admin'));
 
 
-app.all('*', (req, res) => {
+app.all(/(.*)/, (req, res) => {
     console.info('########################     inside app all      ##############################');
     res.status(404);
     if (req.accepts('html')) {
@@ -74,5 +74,5 @@ app.use(errorHandler);
 
 mongoose.connection.once('open', () => {
     console.info('Connected to MongoDB');
-    app.listen(PORT, '::', () => console.info(`Server running on port ${PORT}`));
+    app.listen(PORT, () => console.info(`Server running on port ${PORT}`));
 });

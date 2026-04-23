@@ -8,7 +8,7 @@ const branchSchema = new Schema({
     },
     company_id: {
         type: Schema.Types.ObjectId,
-        ref: 'Company',
+        ref: 'Company', // requires a company model
         required: true
     },
     active: {

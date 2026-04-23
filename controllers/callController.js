@@ -5,7 +5,6 @@ const User = require('../model/User');
 const Contact = require('../model/Contact');
 const ROLES_LIST = require('../config/roles_list');
 const boolVerifyRoles = require('../middleware/boolVerifyRoles');
-const { th } = require('date-fns/locale');
 const sendEmail = require('../middleware/sendEmail');
 const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Types;
